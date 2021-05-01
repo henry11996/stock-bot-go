@@ -47,7 +47,7 @@ func main() {
 			twStockId = update.Message.CommandArguments()
 			result := myClient.Meta(twStockId, false)
 			result.PrettyPrint()
-			msg.Text = strconv.FormatFloat(result.Data.Meta.Pricereference, 'f', 2, 64)
+			msg.Text = strconv.Itoa(result.Data.Meta.Pricereference)
 		case "us":
 			// usStockId = update.Message.CommandArguments()
 		case "status":
