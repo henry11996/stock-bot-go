@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"os"
-	"strconv"
 
 	"github.com/RainrainWu/fugle-realtime-go/client"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
@@ -40,26 +39,26 @@ func main() {
 
 		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 
-		twStockId := ""
-		// usStockId := ""
 		switch update.Message.Command() {
 		case "tw":
-			twStockId = update.Message.CommandArguments()
+			twStockId := update.Message.CommandArguments()
 			result := myClient.Meta(twStockId, false)
-			result.PrettyPrint()
-			msg.Text = strconv.Itoa(result.Data.Meta.Pricereference)
+			// result.PrettyPrint()
+			text := GetInfo(result.Data)
+			msg.Text = text
+			msg.ParseMode = "HTML"
 		case "us":
-			// usStockId = update.Message.CommandArguments()
 		case "status":
 			msg.Text = "I'm ok."
 		default:
-			msg.Text = "I don't know that command"
+			continue
 		}
 
 		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
 
 		if _, err := bot.Send(msg); err != nil {
-			panic(err)
+			failMsg := tgbotapi.NewMessage(update.Message.Chat.ID, "Error occur "+err.Error())
+			bot.Send(failMsg)
 		}
 	}
 }
