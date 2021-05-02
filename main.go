@@ -46,7 +46,11 @@ func main() {
 				}()
 				i := strings.Index(update.Message.Text, "/")
 				result := myClient.Meta(update.Message.Text[i+1:i+5], false)
-				msg.Text = GetInfo(result.Data)
+				if result.Data.Info.SymbolID == "" {
+					msg.Text = "找不到此股票"
+				} else {
+					msg.Text = GetInfo(result.Data)
+				}
 				bot.Send(msg)
 			}()
 		}
