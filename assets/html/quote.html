@@ -1,0 +1,6 @@
+<b><a href="https://tw.stock.yahoo.com/q/bc?s={{ .Info.SymbolID }}">{{ .Info.SymbolID }}</a> - {{ if .Quote.Istrial }}試搓中{{ else if .Quote.Iscurbingrise }}緩漲試搓{{ else if .Quote.Iscurbingfall }}緩跌試搓{{ else if .Quote.Isclosed }}已收盤{{ else if .Quote.Ishalting }}暫停交易{{ else }}正常交易{{ end }}</b>
+高 <pre>{{ .Quote.PriceHigh.Price }}</pre> | 低 <pre>{{ .Quote.PriceLow.Price }}</pre> | 總 <pre>{{ .Quote.Total.Unit }}</pre> 張
+現 <pre>{{ .Quote.Trade.Price }}</pre>
+     委買      |      委賣
+-------------------------{{range $j, $Bestask := .Quote.Order.Bestasks}}{{range $i, $Bestbids := $.Quote.Order.Bestbids}}{{ if eq $i $j}}
+<pre>{{$Bestask.Price}}</pre> {{$Bestask.Unit}}    |    <pre>{{$Bestbids.Price}}</pre> {{$Bestbids.Unit}}{{ end }}{{end}}{{end}}

@@ -1,4 +1,4 @@
-<b><a href="https://tw.stock.yahoo.com/q/bc?s={{ .Info.SymbolID }}">{{ .Meta.Namezhtw }}({{ .Info.SymbolID }})/</a> - {{ .Meta.Typezhtw }}</b>
+<b><a href="https://tw.stock.yahoo.com/q/bc?s={{ .Info.SymbolID }}">{{ .Meta.Namezhtw }}({{ .Info.SymbolID }})</a> - {{ .Meta.Typezhtw }}</b>
 <b>產業：{{ .Meta.Industryzhtw }}</b>
 <b>狀態：{{ if .Meta.Issuspended }}暫停買賣 {{ end }}{{ if and .Meta.Canshortmargin .Meta.Canshortlend }}可融資券{{ else if .Meta.Canshortmargin}}禁融券{{ else if .Meta.Canshortlend}}禁融資{{ else }}禁融資券{{ end }} {{ if and .Meta.Candaybuysell .Meta.Candaysellbuy }}買賣現沖{{ else if .Meta.Candaybuysell}}現沖買{{ else if .Meta.Candaysellbuy}}現沖賣{{ else }}禁現沖{{ end }}</b>
 <b>現價：{{ .Meta.Pricereference}}</b>

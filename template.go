@@ -7,19 +7,19 @@ import (
 	"github.com/RainrainWu/fugle-realtime-go/client"
 )
 
-func GetInfo(data client.FugleAPIData) string {
-	t := template.New("info.html")
+func convertByTemplate(templa string, data client.FugleAPIData) (string, error) {
+	t := template.New(templa + ".html")
 
 	var err error
-	t, err = t.ParseFiles("assets/html/info.html")
+	t, err = t.ParseFiles("assets/html/" + templa + ".html")
 	if err != nil {
-		return ""
+		return "", err
 	}
 
 	var tpl bytes.Buffer
 	if err := t.Execute(&tpl, data); err != nil {
-		return ""
+		return "", err
 	}
 
-	return tpl.String()
+	return tpl.String(), nil
 }
