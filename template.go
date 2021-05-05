@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
-	"log"
 
 	"github.com/RainrainWu/fugle-realtime-go/client"
 )
@@ -44,14 +43,15 @@ func convertQuote(data client.FugleAPIData) string {
 
 	var bestPrices string
 	for i, bestask := range data.Quote.Order.Bestasks {
-		for j, bestbid := range data.Quote.Order.Bestbids {
+		for j, _ := range data.Quote.Order.Bestbids {
+			bid := data.Quote.Order.Bestbids[len(data.Quote.Order.Bestbids)-1-j]
 			if i == j {
-				bestPrices += fmt.Sprintf("%4d %5d \\| %4d %5d\n", bestask.Price.IntPart(), bestask.Unit.IntPart(), bestbid.Price.IntPart(), bestbid.Unit.IntPart())
+				bestPrices += fmt.Sprintf("%4d %5d \\| %4d %5d\n", bid.Price.IntPart(), bid.Unit.IntPart(), bestask.Price.IntPart(), bestask.Unit.IntPart())
 			}
 		}
 	}
 
-	s := fmt.Sprintf("```          %s \\- %s```\n"+
+	return fmt.Sprintf("```          %s \\- %s```\n"+
 		"高  ```%v```  \\|  低  ```%v```  \\|  總 ``` %v\n"+
 		"\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\n"+
 		"    委買   %v   委賣\n"+
@@ -61,7 +61,4 @@ func convertQuote(data client.FugleAPIData) string {
 		data.Quote.Trade.Price,
 		bestPrices,
 	)
-
-	log.Print(s)
-	return s
 }

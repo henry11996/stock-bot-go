@@ -28,27 +28,31 @@ func main() {
 		log.Fatal("failed to init fugle api client")
 	}
 
-	// _, err = bot.SetWebhook(tgbotapi.NewWebhook(""))
-	// u := tgbotapi.NewUpdate(0)
-	// u.Timeout = 60
-	// updates, err := bot.GetUpdatesChan(u)
-
-	url := os.Getenv("HEROKU_APP_NAME") + ".herokuapp.com" + "/"
-	log.Printf(url)
-	_, err = bot.SetWebhook(tgbotapi.NewWebhook(url + bot.Token))
-	if err != nil {
-		log.Fatal(err)
+	var updates tgbotapi.UpdatesChannel
+	if os.Getenv("APP_ENV") == "debug" {
+		_, err = bot.SetWebhook(tgbotapi.NewWebhook(""))
+		u := tgbotapi.NewUpdate(0)
+		u.Timeout = 60
+		updates, err = bot.GetUpdatesChan(u)
+	} else {
+		url := os.Getenv("HEROKU_APP_NAME") + ".herokuapp.com" + "/"
+		log.Printf(url)
+		_, err = bot.SetWebhook(tgbotapi.NewWebhook(url + bot.Token))
+		if err != nil {
+			log.Fatal(err)
+		}
+		var info tgbotapi.WebhookInfo
+		info, err = bot.GetWebhookInfo()
+		if err != nil {
+			log.Fatal(err)
+		}
+		if info.LastErrorDate != 0 {
+			log.Printf("Telegram callback failed: %s", info.LastErrorMessage)
+		}
+		updates = bot.ListenForWebhook("/" + bot.Token)
+		go http.ListenAndServe("0.0.0.0:"+os.Getenv("PORT"), nil)
+		log.Printf("Server up with port " + os.Getenv("PORT"))
 	}
-	info, err := bot.GetWebhookInfo()
-	if err != nil {
-		log.Fatal(err)
-	}
-	if info.LastErrorDate != 0 {
-		log.Printf("Telegram callback failed: %s", info.LastErrorMessage)
-	}
-	updates := bot.ListenForWebhook("/" + bot.Token)
-	go http.ListenAndServe("0.0.0.0:"+os.Getenv("PORT"), nil)
-	log.Printf("Server up with port " + os.Getenv("PORT"))
 
 	for update := range updates {
 		if update.Message == nil {
