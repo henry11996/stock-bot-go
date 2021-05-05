@@ -10,6 +10,10 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
+func sayhelloName(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm() //解析參數，預設是不會解析的
+}
+
 func main() {
 	bot, err := tgbotapi.NewBotAPI(os.Getenv("TELEGRAM_APITOKEN"))
 	if err != nil {
@@ -17,7 +21,6 @@ func main() {
 	}
 
 	// bot.Debug = true
-
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
 	myClient, err := client.NewFugleClient()
@@ -25,7 +28,7 @@ func main() {
 		log.Fatal("failed to init fugle api client")
 	}
 
-	// u := tgbotapi.NewUpdate(1)
+	// u := tgbotapi.NewUpdate(0)
 	// u.Timeout = 60
 	// updates, err := bot.GetUpdatesChan(u)
 
