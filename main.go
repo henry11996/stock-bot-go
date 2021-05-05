@@ -28,6 +28,7 @@ func main() {
 		log.Fatal("failed to init fugle api client")
 	}
 
+	// _, err = bot.SetWebhook(tgbotapi.NewWebhook(""))
 	// u := tgbotapi.NewUpdate(0)
 	// u.Timeout = 60
 	// updates, err := bot.GetUpdatesChan(u)
@@ -56,7 +57,7 @@ func main() {
 		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
 
 		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
-		msg.ParseMode = "HTML"
+		msg.ParseMode = "MarkdownV2"
 		if update.Message.IsCommand() {
 			command := update.Message.Command()
 			if command == "" {
@@ -89,7 +90,7 @@ func main() {
 				} else if args == "i" {
 					msg.Text, err = convertByTemplate("meta", data.Data)
 				} else {
-					msg.Text, err = convertByTemplate("quote", data.Data)
+					msg.Text = convertQuote(data.Data)
 				}
 				if err != nil {
 					log.Panic(err)
