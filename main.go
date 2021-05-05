@@ -47,6 +47,7 @@ func main() {
 	}
 	updates := bot.ListenForWebhook("/" + bot.Token)
 	go http.ListenAndServe("0.0.0.0:"+os.Getenv("PORT"), nil)
+	log.Printf("Server up with port " + os.Getenv("PORT"))
 
 	for update := range updates {
 		if update.Message == nil {
