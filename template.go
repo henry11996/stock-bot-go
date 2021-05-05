@@ -51,12 +51,12 @@ func convertQuote(data client.FugleAPIData) string {
 		}
 	}
 
-	return fmt.Sprintf("```          %s \\- %s```\n"+
-		"高  ```%v```  \\|  低  ```%v```  \\|  總 ``` %v\n"+
+	return fmt.Sprintf("``` %4s \\- %s \\- %s\n"+
+		"高 %v \\| 低 %v \\| 總 %v\n"+
 		"\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\n"+
 		"    委買   %v   委賣\n"+
 		"\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\n"+
-		"%s```", data.Info.SymbolID, status,
+		"%s```", data.Meta.Namezhtw, data.Info.SymbolID, status,
 		data.Quote.PriceHigh.Price, data.Quote.PriceLow.Price, data.Quote.Total.Unit,
 		data.Quote.Trade.Price,
 		bestPrices,

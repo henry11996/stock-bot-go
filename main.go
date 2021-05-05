@@ -5,14 +5,11 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"strings"
 
 	"github.com/RainrainWu/fugle-realtime-go/client"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
-
-func sayhelloName(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm() //解析參數，預設是不會解析的
-}
 
 func main() {
 	bot, err := tgbotapi.NewBotAPI(os.Getenv("TELEGRAM_APITOKEN"))
@@ -61,40 +58,55 @@ func main() {
 		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
 
 		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
-		msg.ParseMode = "MarkdownV2"
-		if update.Message.IsCommand() {
-			command := update.Message.Command()
+
+		if strings.Contains(update.Message.Text, "/") {
+			command := strings.Split(update.Message.Text, " ")[0][1:]
 			if command == "" {
 				return
 			}
-			args := update.Message.CommandArguments()
-
+			args := strings.Split(update.Message.Text, " ")
+			var arg string
+			if len(args) > 1 {
+				arg = args[1]
+			}
 			go func() {
 				defer func() {
 					if r := recover(); r != nil {
 						log.Println("Recovered in f", r)
 					}
 				}()
-
 				re := regexp.MustCompile("[0-9]{4}$")
 				if !re.MatchString(command) {
-					return
+					set := &QueryResponse{}
+					err := query(command, set)
+					if err != nil {
+						panic(err)
+					}
+					command = strings.ReplaceAll(set.ResultSet.Result[0].Symbol, ".TW", "")
 				}
 
-				var data client.FugleAPIResponse
+				var meta client.FugleAPIResponse
 				var err error
-				if args == "i" {
-					data, err = myClient.Meta(command, false)
-				} else {
-					data, err = myClient.Quote(command, false)
+				meta, err = myClient.Meta(command, false)
+				if arg != "i" && err == nil {
+					var quote client.FugleAPIResponse
+					quote, err = myClient.Quote(command, false)
+					if err != nil {
+						panic(err)
+					}
+					meta.Data.Quote = quote.Data.Quote
+				} else if err != nil {
+					panic(err)
 				}
 
-				if err != nil || data.Data.Info.SymbolID == "" || len(command) != 4 {
+				if err != nil || meta.Data.Info.SymbolID == "" || len(command) != 4 {
 					msg.Text = "找不到此股票"
-				} else if args == "i" {
-					msg.Text, err = convertByTemplate("meta", data.Data)
+				} else if arg == "i" {
+					msg.Text, err = convertByTemplate("meta", meta.Data)
+					msg.ParseMode = "HTML"
 				} else {
-					msg.Text = convertQuote(data.Data)
+					msg.Text = convertQuote(meta.Data)
+					msg.ParseMode = "MarkdownV2"
 				}
 				if err != nil {
 					log.Panic(err)
