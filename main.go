@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
@@ -19,7 +20,7 @@ func main() {
 
 		c := make(chan string)
 
-		go run(update.Message.Command(), update.Message.CommandArguments(), c)
+		go run(strings.Split(update.Message.Text, " ")[0][1:], update.Message.CommandArguments(), c)
 
 		msg.Text = <-c
 		msg.ParseMode = "MarkdownV2"
