@@ -20,7 +20,13 @@ func main() {
 
 		c := make(chan string)
 
-		go run(strings.Split(update.Message.Text, " ")[0][1:], update.Message.CommandArguments(), c)
+		args := strings.Split(update.Message.Text, " ")
+		arg := ""
+		if len(args) > 1 {
+			arg = args[1]
+		}
+
+		go run(strings.Split(update.Message.Text, " ")[0][1:], arg, c)
 
 		msg.Text = <-c
 		msg.ParseMode = "MarkdownV2"
