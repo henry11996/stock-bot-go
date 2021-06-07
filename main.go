@@ -25,11 +25,11 @@ func main() {
 		if len(args) > 1 {
 			arg = args[1]
 		}
-
 		go run(strings.Split(update.Message.Text, " ")[0][1:], arg, c)
 
 		msg.Text = <-c
 		msg.ParseMode = "MarkdownV2"
+		log.Print(msg.Text)
 		_, err := bot.Send(msg)
 		if err != nil {
 			log.Print(err)
@@ -55,6 +55,10 @@ func run(command string, arg string, c chan string) {
 	meta, _ := fugle.Meta(stockId, false)
 	if arg == "i" {
 		c <- convertInfo(meta.Data)
+	} else if arg == "t" {
+		res := getLegalPersons("")
+		legal := res.getByStock(stockId, "")
+		c <- convertLegalPerson(legal)
 	} else {
 		quote, _ := fugle.Quote(stockId, false)
 		meta.Data.Quote = quote.Data.Quote

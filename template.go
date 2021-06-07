@@ -125,10 +125,16 @@ func convertQuote(data client.FugleAPIData) string {
 	)
 }
 
-func getPositiveText(pos bool) string {
-	if pos {
-		return ""
-	} else {
-		return "-"
-	}
+func convertLegalPerson(legalPerson LegalPerson) string {
+	return fmt.Sprintf("%s \\- %s\n"+
+		"日期：%s\n"+
+		"買超股數：%s\n"+
+		"賣超股數：%s\n"+
+		"買賣超股數：\\%s",
+		legalPerson.StockName, legalPerson.StockId,
+		legalPerson.Date,
+		legalPerson.Buy,
+		legalPerson.Sell,
+		legalPerson.Total,
+	)
 }
