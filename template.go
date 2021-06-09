@@ -83,9 +83,7 @@ func convertQuote(data client.FugleAPIData) string {
 	if len(data.Quote.Order.Bestbids) > 0 || len(data.Quote.Order.Bestasks) > 0 {
 		for i := 0; i < 5; i++ {
 			bidPrice := ""
-			askPrice := ""
 			bidUnit := ""
-			askUnit := ""
 			if len(data.Quote.Order.Bestbids) > i {
 				bestbids := data.Quote.Order.Bestbids[len(data.Quote.Order.Bestbids)-1-i]
 				bidPrice = bestbids.Price.StringFixed(2)
@@ -95,6 +93,8 @@ func convertQuote(data client.FugleAPIData) string {
 				bidUnit = bestbids.Unit.String()
 			}
 			for j := 0; j < 5; j++ {
+				askPrice := ""
+				askUnit := ""
 				if len(data.Quote.Order.Bestasks) > j {
 					bestasks := data.Quote.Order.Bestasks[j]
 					askPrice = bestasks.Price.StringFixed(2)
