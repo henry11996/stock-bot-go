@@ -58,6 +58,7 @@ func run(command string, arg string, c chan string) {
 	} else if arg == "t" {
 		res := getLegalPersons("")
 		legal := res.getByStock(stockId, "")
+		log.Print(legal)
 		c <- convertLegalPerson(legal)
 	} else {
 		quote, _ := fugle.Quote(stockId, false)

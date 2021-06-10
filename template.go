@@ -126,15 +126,20 @@ func convertQuote(data client.FugleAPIData) string {
 }
 
 func convertLegalPerson(legalPerson LegalPerson) string {
-	return fmt.Sprintf("%s \\- %s\n"+
-		"日期：%s\n"+
-		"買超股數：%s\n"+
-		"賣超股數：%s\n"+
-		"買賣超股數：\\%s",
+	return fmt.Sprintf("```\n"+
+		"%s\n"+
+		"---------%s(%s)--------\n"+
+		"(張)    買  |   賣  |   總\n"+
+		"外資  %5v | %5v | %5v\n"+
+		"投信  %5v | %5v | %5v\n"+
+		"自營  %5v | %5v | %5v\n"+
+		"總共  %5v | %5v | %5v\n"+
+		"```",
+		legalPerson.Title,
 		legalPerson.StockName, legalPerson.StockId,
-		legalPerson.Date,
-		legalPerson.Buy,
-		legalPerson.Sell,
-		legalPerson.Total,
+		legalPerson.Foreign.Buy/1000, legalPerson.Foreign.Sell/1000, legalPerson.Foreign.Total/1000,
+		legalPerson.Investment.Buy/1000, legalPerson.Investment.Sell/1000, legalPerson.Investment.Total/1000,
+		legalPerson.Dealer.Buy/1000, legalPerson.Dealer.Sell/1000, legalPerson.Dealer.Total/1000,
+		legalPerson.Total.Buy/1000, legalPerson.Total.Sell/1000, legalPerson.Total.Total/1000,
 	)
 }
