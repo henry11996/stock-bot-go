@@ -21,11 +21,10 @@ func main() {
 		c := make(chan string)
 
 		args := strings.Split(update.Message.Text, " ")
-		arg := ""
 		if len(args) > 1 {
-			arg = args[1]
+			args = args[1:]
 		}
-		go run(strings.Split(update.Message.Text, " ")[0][1:], arg, c)
+		go run(strings.Split(update.Message.Text, " ")[0][1:], args, c)
 
 		msg.Text = <-c
 		msg.ParseMode = "MarkdownV2"
@@ -37,7 +36,7 @@ func main() {
 	}
 }
 
-func run(command string, arg string, c chan string) {
+func run(command string, args []string, c chan string) {
 	fugle := fugleInit()
 
 	defer func() {
@@ -53,12 +52,25 @@ func run(command string, arg string, c chan string) {
 	stockId, _ := query(command)
 
 	meta, _ := fugle.Meta(stockId, false)
-	if arg == "i" {
+	if args[0] == "i" {
 		c <- convertInfo(meta.Data)
-	} else if arg == "t" {
-		res := getLegalPersons("")
+	} else if args[0] == "d" {
+		var res LegalPersonResponse
+		if len(args) > 1 {
+			res = getDateLegalPersons(args[1])
+		} else {
+			res = getDateLegalPersons("")
+		}
 		legal := res.getByStock(stockId, "")
-		log.Print(legal)
+		c <- convertLegalPerson(legal)
+	} else if args[0] == "m" {
+		var res LegalPersonResponse
+		if len(args) > 1 {
+			res = getMonthLegalPersons(args[1])
+		} else {
+			res = getMonthLegalPersons("")
+		}
+		legal := res.getByStock(stockId, "")
 		c <- convertLegalPerson(legal)
 	} else {
 		quote, _ := fugle.Quote(stockId, false)

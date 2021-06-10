@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math/big"
+	"strings"
 
 	"github.com/RainrainWu/fugle-realtime-go/client"
 	"github.com/shopspring/decimal"
@@ -126,16 +127,26 @@ func convertQuote(data client.FugleAPIData) string {
 }
 
 func convertLegalPerson(legalPerson LegalPerson) string {
+	typeTitle := strings.Split(legalPerson.Title, " ")[1]
+	dateTitle := strings.Split(legalPerson.Title, " ")[0]
+	w := 26
+
+	center := func(s string, w int) string {
+		return fmt.Sprintf("%*s", w/2, s[:len(s)/2]) + fmt.Sprintf("%*s", -w/2, s[len(s)/2:])
+	}
+
 	return fmt.Sprintf("```\n"+
 		"%s\n"+
-		"---------%s(%s)--------\n"+
-		"(張)    買  |   賣  |   總\n"+
-		"外資  %5v | %5v | %5v\n"+
-		"投信  %5v | %5v | %5v\n"+
-		"自營  %5v | %5v | %5v\n"+
-		"總共  %5v | %5v | %5v\n"+
+		"  %s\n"+
+		"-----------%s(%s)-----------\n"+
+		"(張)     買  |    賣  |    總\n"+
+		"外資  %6v | %6v | %6v\n"+
+		"投信  %6v | %6v | %6v\n"+
+		"自營  %6v | %6v | %6v\n"+
+		"總共  %6v | %6v | %6v\n"+
 		"```",
-		legalPerson.Title,
+		center(typeTitle, w),
+		center(dateTitle, w),
 		legalPerson.StockName, legalPerson.StockId,
 		legalPerson.Foreign.Buy/1000, legalPerson.Foreign.Sell/1000, legalPerson.Foreign.Total/1000,
 		legalPerson.Investment.Buy/1000, legalPerson.Investment.Sell/1000, legalPerson.Investment.Total/1000,

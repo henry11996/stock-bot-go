@@ -73,7 +73,19 @@ func (res *QueryResponse) getStockId() string {
 	return ""
 }
 
-func getLegalPersons(date string) LegalPersonResponse {
+func getMonthLegalPersons(date string) LegalPersonResponse {
+	url := "https://www.twse.com.tw/fund/TWT47U?response=json&selectType=ALL&date=%s"
+	r, err := http.Get(fmt.Sprintf(url, date))
+	if err != nil {
+		log.Print(err)
+	}
+	defer r.Body.Close()
+	response := &LegalPersonResponse{}
+	json.NewDecoder(r.Body).Decode(response)
+	return *response
+}
+
+func getDateLegalPersons(date string) LegalPersonResponse {
 	url := "https://www.twse.com.tw/fund/T86?response=json&selectType=ALL&date=%s"
 	r, err := http.Get(fmt.Sprintf(url, date))
 	if err != nil {
@@ -100,39 +112,27 @@ func (res *LegalPersonResponse) getByStock(stockId string, stockName string) Leg
 }
 
 func (res *LegalPersonResponse) NewLegalPerson(stockData []string) LegalPerson {
-	var err error
-
-	var foreignChianBuy, foreignBuy, foreignChianSell, foreignSell, foreignChianTotal, foreignTotal int
-	foreignChianBuy, err = strconv.Atoi(strings.ReplaceAll(strings.Trim(stockData[2], " "), ",", ""))
-	foreignBuy, err = strconv.Atoi(strings.ReplaceAll(strings.Trim(stockData[5], " "), ",", ""))
-	foreignBuy += foreignChianBuy
-	foreignChianSell, err = strconv.Atoi(strings.ReplaceAll(strings.Trim(stockData[3], " "), ",", ""))
-	foreignSell, err = strconv.Atoi(strings.ReplaceAll(strings.Trim(stockData[6], " "), ",", ""))
-	foreignSell += foreignChianSell
-	foreignChianTotal, err = strconv.Atoi(strings.ReplaceAll(strings.Trim(stockData[4], " "), ",", ""))
-	foreignTotal, err = strconv.Atoi(strings.ReplaceAll(strings.Trim(stockData[7], " "), ",", ""))
-	foreignTotal += foreignChianTotal
-
-	var investmentBuy, investmentSell, investmentTotal int
-	investmentBuy, err = strconv.Atoi(strings.ReplaceAll(strings.Trim(stockData[8], " "), ",", ""))
-	investmentSell, err = strconv.Atoi(strings.ReplaceAll(strings.Trim(stockData[9], " "), ",", ""))
-	investmentTotal, err = strconv.Atoi(strings.ReplaceAll(strings.Trim(stockData[10], " "), ",", ""))
-
-	var dealerSelfBuy, dealerSelfSell, dealerBuy, dealerSell, dealerTotal int
-	dealerSelfBuy, err = strconv.Atoi(strings.ReplaceAll(strings.Trim(stockData[12], " "), ",", ""))
-	dealerBuy, err = strconv.Atoi(strings.ReplaceAll(strings.Trim(stockData[15], " "), ",", ""))
-	dealerBuy += dealerSelfBuy
-	dealerSelfSell, err = strconv.Atoi(strings.ReplaceAll(strings.Trim(stockData[13], " "), ",", ""))
-	dealerSell, err = strconv.Atoi(strings.ReplaceAll(strings.Trim(stockData[16], " "), ",", ""))
-	dealerSell += dealerSelfSell
-	dealerTotal, err = strconv.Atoi(strings.ReplaceAll(strings.Trim(stockData[11], " "), ",", ""))
-
-	var total int
-	total, err = strconv.Atoi(strings.ReplaceAll(strings.Trim(stockData[18], " "), ",", ""))
-
-	if err != nil {
-		panic(err)
+	formatNumber := func(s string) int {
+		i, err := strconv.Atoi(strings.ReplaceAll(strings.Trim(s, " "), ",", ""))
+		if err != nil {
+			panic(err)
+		}
+		return i
 	}
+
+	foreignBuy := formatNumber(stockData[2]) + formatNumber(stockData[5])
+	foreignSell := formatNumber(stockData[3]) + formatNumber(stockData[6])
+	foreignTotal := formatNumber(stockData[4]) + formatNumber(stockData[7])
+
+	investmentBuy := formatNumber(stockData[8])
+	investmentSell := formatNumber(stockData[9])
+	investmentTotal := formatNumber(stockData[10])
+
+	dealerBuy := formatNumber(stockData[12]) + formatNumber(stockData[15])
+	dealerSell := formatNumber(stockData[13]) + formatNumber(stockData[16])
+	dealerTotal := formatNumber(stockData[11])
+
+	total := formatNumber(stockData[18])
 
 	legalPerson := &LegalPerson{
 		Date:      res.Date,
