@@ -113,7 +113,7 @@ func convertQuote(data client.FugleAPIData) string {
 		bestPrices = ""
 	}
 
-	return fmt.Sprintf("``` %9s - %s  %s \n"+
+	return fmt.Sprintf("``` %9s(%s)  %s \n"+
 		"高 %4v \\| 低 %4v \\| 總 %5v\n"+
 		"\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\n"+
 		"            %v         \n"+
@@ -129,25 +129,27 @@ func convertQuote(data client.FugleAPIData) string {
 func convertLegalPerson(legalPerson LegalPerson) string {
 	typeTitle := strings.Split(legalPerson.Title, " ")[1]
 	dateTitle := strings.Split(legalPerson.Title, " ")[0]
-	w := 26
+	w := 22
 
 	center := func(s string, w int) string {
 		return fmt.Sprintf("%*s", w/2, s[:len(s)/2]) + fmt.Sprintf("%*s", -w/2, s[len(s)/2:])
 	}
 
 	return fmt.Sprintf("```\n"+
+		"  %9s(%s)\n"+
+		"---------------------------\n"+
 		"%s\n"+
-		"  %s\n"+
-		"-----------%s(%s)-----------\n"+
-		"(張)     買  |    賣  |    總\n"+
-		"外資  %6v | %6v | %6v\n"+
-		"投信  %6v | %6v | %6v\n"+
-		"自營  %6v | %6v | %6v\n"+
-		"總共  %6v | %6v | %6v\n"+
+		" %s\n"+
+		"---------------------------\n"+
+		"(張)   買  |   賣  |    總\n"+
+		"外資 %6v| %6v| %6v\n"+
+		"投信 %6v| %6v| %6v\n"+
+		"自營 %6v| %6v| %6v\n"+
+		"總共 %6v| %6v| %6v\n"+
 		"```",
+		legalPerson.StockName, legalPerson.StockId,
 		center(typeTitle, w),
 		center(dateTitle, w),
-		legalPerson.StockName, legalPerson.StockId,
 		legalPerson.Foreign.Buy/1000, legalPerson.Foreign.Sell/1000, legalPerson.Foreign.Total/1000,
 		legalPerson.Investment.Buy/1000, legalPerson.Investment.Sell/1000, legalPerson.Investment.Total/1000,
 		legalPerson.Dealer.Buy/1000, legalPerson.Dealer.Sell/1000, legalPerson.Dealer.Total/1000,
