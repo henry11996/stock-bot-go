@@ -9,17 +9,18 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-func boot() (*tgbotapi.BotAPI, tgbotapi.UpdatesChannel) {
-	// c := cache.New(5*time.Minute, 10*time.Minute)
+var Bot *tgbotapi.BotAPI
 
-	bot, err := tgbotapi.NewBotAPI(os.Getenv("TELEGRAM_APITOKEN"))
+func boot() (*tgbotapi.BotAPI, tgbotapi.UpdatesChannel) {
+	var err error
+	Bot, err = tgbotapi.NewBotAPI(os.Getenv("TELEGRAM_APITOKEN"))
 	if err != nil {
 		log.Panic(err)
 	}
 	// bot.Debug = true
-	log.Printf("Authorized on account %s", bot.Self.UserName)
+	log.Printf("Authorized on account %s", Bot.Self.UserName)
 
-	return bot, botInit(bot)
+	return Bot, botInit(Bot)
 }
 
 func botInit(bot *tgbotapi.BotAPI) tgbotapi.UpdatesChannel {
