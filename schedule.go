@@ -11,7 +11,7 @@ import (
 
 func InitSchedule() {
 	c := cron.New()
-	c.AddFunc("0 3 3 * * 1-5", setDailyLegalPerson)
+	c.AddFunc("0 3 7 * * 1-5", setDailyLegalPerson)
 	c.Start()
 }
 
