@@ -8,6 +8,8 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
+var Loc, _ = time.LoadLocation("Asia/Taipei")
+
 func main() {
 	bot, updates := boot()
 
@@ -41,6 +43,8 @@ func main() {
 }
 
 func run(command string, args []string, c chan string) {
+	var Now = time.Now().In(Loc)
+
 	fugle := fugleInit()
 
 	defer func() {
@@ -59,11 +63,15 @@ func run(command string, args []string, c chan string) {
 		meta, _ := fugle.Meta(stockId, false)
 		c <- convertInfo(meta.Data)
 	} else if args[0] == "d" {
+		releaseTime := time.Date(Now.Year(), Now.Month(), Now.Day(), 16, 0, 0, 0, Loc)
+		if Now.Before(releaseTime) {
+			Now = Now.AddDate(0, 0, -1)
+		}
 		var res LegalPersonResponse
 		if len(args) > 1 {
 			res = getDateLegalPersons(args[1])
 		} else {
-			res = getDateLegalPersons(time.Now().Format("20060102"))
+			res = getDateLegalPersons(Now.Format("20060102"))
 		}
 		legal := res.getByStock(stockId, command)
 		c <- convertLegalPerson(legal)
@@ -72,7 +80,7 @@ func run(command string, args []string, c chan string) {
 		if len(args) > 1 {
 			res = getMonthLegalPersons(args[1])
 		} else {
-			res = getMonthLegalPersons(time.Now().Format("20060102"))
+			res = getMonthLegalPersons(Now.Format("20060102"))
 		}
 		legal := res.getByStock(stockId, command)
 		c <- convertLegalPerson(legal)
@@ -81,7 +89,7 @@ func run(command string, args []string, c chan string) {
 		if len(args) > 1 {
 			legal = getDayTotalLegalPerson(args[1])
 		} else {
-			legal = getDayTotalLegalPerson(time.Now().Format("20060102"))
+			legal = getDayTotalLegalPerson(Now.Format("20060102"))
 		}
 		c <- convertTotalLegalPerson(legal)
 	} else {
