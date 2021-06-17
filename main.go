@@ -86,8 +86,8 @@ func run(command string, args []string, c chan string) {
 		c <- convertLegalPerson(legal)
 	} else if command == "tw" {
 		var legal LegalPerson
-		if len(args) > 1 {
-			legal = getDayTotalLegalPerson(args[1])
+		if len(args) > 0 {
+			legal = getDayTotalLegalPerson(args[0])
 		} else {
 			legal = getDayTotalLegalPerson(Now.Format("20060102"))
 		}

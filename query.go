@@ -81,7 +81,7 @@ func getDayTotalLegalPerson(date string) LegalPerson {
 	if x, found := Cache.Get(cacheKey); found {
 		return x.(LegalPerson)
 	}
-	if time.Now().Format("20060102") == date {
+	if time.Now().In(Loc).Format("20060102") == date {
 		date = ""
 	}
 	url := "https://www.twse.com.tw/fund/BFI82U?response=json&dayDate=%s&weekDate=&monthDate=&type=day"
@@ -103,7 +103,7 @@ func getMonthLegalPersons(date string) LegalPersonResponse {
 	if x, found := Cache.Get(cacheKey); found {
 		return x.(LegalPersonResponse)
 	}
-	if time.Now().Format("20060102") == date {
+	if time.Now().In(Loc).Format("20060102") == date {
 		date = ""
 	}
 	url := "https://www.twse.com.tw/fund/TWT47U?response=json&selectType=ALL&date=%s"
