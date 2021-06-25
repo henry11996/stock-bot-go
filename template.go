@@ -38,11 +38,12 @@ func convertInfo(data client.FugleAPIData) string {
 		status += "禁現沖 "
 	}
 
-	return fmt.Sprintf("[%s\\(%s\\)](https://tw.stock.yahoo.com/q/bc?s=%s)\n"+
+	return fmt.Sprintf("```\n"+
+		"%s(%s)\n"+
 		"產業：%s\n"+
 		"狀態：%s\n"+
-		"現價：%s\n",
-		data.Meta.Namezhtw, data.Info.SymbolID, data.Info.SymbolID,
+		"現價：%s```\n",
+		data.Meta.Namezhtw, data.Info.SymbolID,
 		data.Meta.Industryzhtw,
 		status,
 		data.Meta.Pricereference,
@@ -127,6 +128,9 @@ func convertQuote(data client.FugleAPIData) string {
 }
 
 func convertLegalPerson(legalPerson LegalPerson) string {
+	if legalPerson.Title == "" {
+		panic("找不到買賣超資料")
+	}
 	typeTitle := strings.Split(legalPerson.Title, " ")[1]
 	dateTitle := strings.Split(legalPerson.Title, " ")[0]
 	w := 22

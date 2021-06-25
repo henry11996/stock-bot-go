@@ -29,7 +29,10 @@ func main() {
 		args := strings.Split(update.Message.Text, " ")
 		if len(args) > 1 {
 			args = args[1:]
+		} else {
+			args = make([]string, 0)
 		}
+
 		go run(strings.Split(update.Message.Text, " ")[0][1:], args, c)
 
 		msg.Text = <-c
@@ -49,21 +52,18 @@ func run(command string, args []string, c chan string) {
 
 	defer func() {
 		if r := recover(); r != nil {
-			c <- "找不到```" + command + "```，或拿取資料時發生錯誤"
+			c <- "無法取得```" + command + "```"
 			log.Println("Recovered in ", r)
 		}
 	}()
-	if command == "twse" {
-		command = "TWSE_SEM_INDEX_1"
-	}
 
 	stockId, _ := query(command)
 
-	if args[0] == "i" {
+	if len(args) > 0 && args[0] == "i" {
 		meta, _ := fugle.Meta(stockId, false)
 		c <- convertInfo(meta.Data)
-	} else if args[0] == "d" {
-		releaseTime := time.Date(Now.Year(), Now.Month(), Now.Day(), 16, 0, 0, 0, Loc)
+	} else if len(args) > 0 && args[0] == "d" {
+		releaseTime := time.Date(Now.Year(), Now.Month(), Now.Day(), 16, 2, 0, 0, Loc)
 		if Now.Before(releaseTime) {
 			Now = Now.AddDate(0, 0, -1)
 		}
@@ -75,7 +75,7 @@ func run(command string, args []string, c chan string) {
 		}
 		legal := res.getByStock(stockId, command)
 		c <- convertLegalPerson(legal)
-	} else if args[0] == "m" {
+	} else if len(args) > 0 && args[0] == "m" {
 		var res LegalPersonResponse
 		if len(args) > 1 {
 			res = getMonthLegalPersons(args[1])
