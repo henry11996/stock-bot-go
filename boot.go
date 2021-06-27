@@ -5,14 +5,19 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/RainrainWu/fugle-realtime-go/client"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	"github.com/henry11996/fugle-golang/fugle"
+	"github.com/joho/godotenv"
 )
 
 var Bot *tgbotapi.BotAPI
 
 func boot() (*tgbotapi.BotAPI, tgbotapi.UpdatesChannel) {
 	var err error
+	err = godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 	Bot, err = tgbotapi.NewBotAPI(os.Getenv("TELEGRAM_APITOKEN"))
 	if err != nil {
 		log.Panic(err)
@@ -27,13 +32,12 @@ func botInit(bot *tgbotapi.BotAPI) tgbotapi.UpdatesChannel {
 	var updates tgbotapi.UpdatesChannel
 	var err error
 	if os.Getenv("APP_ENV") == "debug" {
-		_, err = bot.SetWebhook(tgbotapi.NewWebhook(""))
+		_, _ = bot.SetWebhook(tgbotapi.NewWebhook(""))
 		u := tgbotapi.NewUpdate(0)
 		u.Timeout = 60
-		updates, err = bot.GetUpdatesChan(u)
+		updates, _ = bot.GetUpdatesChan(u)
 	} else {
 		url := os.Getenv("HEROKU_APP_NAME") + ".herokuapp.com" + "/"
-		log.Printf(url)
 		_, err = bot.SetWebhook(tgbotapi.NewWebhook(url + bot.Token))
 		if err != nil {
 			log.Fatal(err)
@@ -53,10 +57,12 @@ func botInit(bot *tgbotapi.BotAPI) tgbotapi.UpdatesChannel {
 	return updates
 }
 
-func fugleInit() client.FugleClient {
-	myClient, err := client.NewFugleClient()
+func fugleInit() fugle.Client {
+	client, err := fugle.NewFugleClient(fugle.ClientOption{
+		ApiToken: os.Getenv("FUGLE_API_TOKEN"),
+	})
 	if err != nil {
-		log.Fatal("failed to init fugle api client")
+		log.Fatal("failed to init fugle api client, " + err.Error())
 	}
-	return myClient
+	return client
 }

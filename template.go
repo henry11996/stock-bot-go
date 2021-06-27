@@ -3,36 +3,37 @@ package main
 import (
 	"fmt"
 	"math/big"
+	"strconv"
 	"strings"
 
-	"github.com/RainrainWu/fugle-realtime-go/client"
+	"github.com/henry11996/fugle-golang/fugle"
 	"github.com/shopspring/decimal"
 )
 
-func convertInfo(data client.FugleAPIData) string {
+func convertInfo(data fugle.Data) string {
 	status := ""
 
-	if data.Meta.Issuspended {
+	if data.Meta.IsSuspended {
 		status += "暫停買賣 "
 	}
-	if data.Meta.Canshortmargin && data.Meta.Canshortlend {
+	if data.Meta.CanShortMargin && data.Meta.CanShortLend {
 		status += "暫停買賣 "
 	}
-	if data.Meta.Canshortmargin && data.Meta.Canshortlend {
+	if data.Meta.CanShortMargin && data.Meta.CanShortLend {
 		status += "可融資券 "
-	} else if data.Meta.Canshortmargin {
+	} else if data.Meta.CanShortMargin {
 		status += "禁融券 "
-	} else if data.Meta.Canshortlend {
+	} else if data.Meta.CanShortLend {
 		status += "禁融資 "
 	} else {
 		status += "禁融資券 "
 	}
 
-	if data.Meta.Candaybuysell && data.Meta.Candaysellbuy {
+	if data.Meta.CanDayBuySell && data.Meta.CanDaySellBuy {
 		status += "買賣現沖 "
-	} else if data.Meta.Candaybuysell {
+	} else if data.Meta.CanDayBuySell {
 		status += "現沖買 "
-	} else if data.Meta.Candaysellbuy {
+	} else if data.Meta.CanDaySellBuy {
 		status += "現沖賣 "
 	} else {
 		status += "禁現沖 "
@@ -43,25 +44,25 @@ func convertInfo(data client.FugleAPIData) string {
 		"產業：%s\n"+
 		"狀態：%s\n"+
 		"現價：%s```\n",
-		data.Meta.Namezhtw, data.Info.SymbolID,
-		data.Meta.Industryzhtw,
+		data.Meta.NameZhTw, data.Info.SymbolID,
+		data.Meta.IndustryZhTw,
 		status,
-		data.Meta.Pricereference,
+		data.Meta.PriceReference,
 	)
 }
 
-func convertQuote(data client.FugleAPIData) string {
+func convertQuote(data fugle.Data) string {
 	var status string
-	if data.Quote.Istrial {
+	if data.Quote.IsTrial {
 		status = "試搓中"
-	} else if data.Quote.Iscurbingrise {
+	} else if data.Quote.IsCurbingRise {
 		status = "緩漲試搓"
-	} else if data.Quote.Iscurbingfall {
+	} else if data.Quote.IsCurbingFall {
 		status = "緩跌試搓"
-	} else if data.Quote.Isclosed {
+	} else if data.Quote.IsClosed {
 		//已收盤
 		status = ""
-	} else if data.Quote.Ishalting {
+	} else if data.Quote.IsHalting {
 		status = "暫停交易"
 	} else {
 		//正常交易
@@ -78,8 +79,8 @@ func convertQuote(data client.FugleAPIData) string {
 
 	var percent, minus *big.Float
 	hunded := decimal.NewFromInt(100)
-	percent = currentPirce.Sub(data.Meta.Pricereference).Div(data.Meta.Pricereference).Mul(hunded).BigFloat()
-	minus = currentPirce.Sub(data.Meta.Pricereference).BigFloat()
+	percent = currentPirce.Sub(data.Meta.PriceReference).Div(data.Meta.PriceReference).Mul(hunded).BigFloat()
+	minus = currentPirce.Sub(data.Meta.PriceReference).BigFloat()
 	var bestPrices string
 
 	if len(data.Quote.Order.Bestbids) > 0 || len(data.Quote.Order.Bestasks) > 0 {
@@ -92,7 +93,7 @@ func convertQuote(data client.FugleAPIData) string {
 				if bidPrice == "0.00" {
 					bidPrice = "市價"
 				}
-				bidUnit = bestbids.Unit.String()
+				bidUnit = strconv.Itoa(bestbids.Unit)
 			}
 			for j := 0; j < 5; j++ {
 				askPrice := ""
@@ -103,7 +104,7 @@ func convertQuote(data client.FugleAPIData) string {
 					if askPrice == "0.00" {
 						askPrice = "市價"
 					}
-					askUnit = bestasks.Unit.String()
+					askUnit = strconv.Itoa(bestasks.Unit)
 				}
 				if i == j {
 					bestPrices += fmt.Sprintf("%6s %5s \\| %6s %5s\n", bidPrice, bidUnit, askPrice, askUnit)
@@ -120,7 +121,7 @@ func convertQuote(data client.FugleAPIData) string {
 		"            %v         \n"+
 		"    買   %2.2f %2.2f%%   賣\n"+
 		"\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\n"+
-		"%s```", data.Meta.Namezhtw, data.Info.SymbolID, status,
+		"%s```", data.Meta.NameZhTw, data.Info.SymbolID, status,
 		data.Quote.PriceHigh.Price, data.Quote.PriceLow.Price, data.Quote.Total.Unit,
 		currentPirce.BigFloat(), minus, percent,
 		bestPrices,
