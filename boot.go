@@ -14,10 +14,7 @@ var Bot *tgbotapi.BotAPI
 
 func boot() (*tgbotapi.BotAPI, tgbotapi.UpdatesChannel) {
 	var err error
-	err = godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	_ = godotenv.Load()
 	Bot, err = tgbotapi.NewBotAPI(os.Getenv("TELEGRAM_APITOKEN"))
 	if err != nil {
 		log.Panic(err)
