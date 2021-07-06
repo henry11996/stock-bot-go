@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math/big"
 	"strconv"
-	"strings"
 
 	"github.com/henry11996/fugle-golang/fugle"
 	"github.com/shopspring/decimal"
@@ -125,67 +124,5 @@ func convertQuote(data fugle.Data) string {
 		data.Quote.PriceHigh.Price, data.Quote.PriceLow.Price, data.Quote.Total.Unit,
 		currentPirce.BigFloat(), minus, percent,
 		bestPrices,
-	)
-}
-
-func convertLegalPerson(legalPerson LegalPerson) string {
-	if legalPerson.Title == "" {
-		panic("找不到買賣超資料")
-	}
-	typeTitle := strings.Split(legalPerson.Title, " ")[1]
-	dateTitle := strings.Split(legalPerson.Title, " ")[0]
-	w := 22
-
-	center := func(s string, w int) string {
-		return fmt.Sprintf("%*s", w/2, s[:len(s)/2]) + fmt.Sprintf("%*s", -w/2, s[len(s)/2:])
-	}
-
-	return fmt.Sprintf("```\n"+
-		"  %9s(%s)\n"+
-		"---------------------------\n"+
-		"%s\n"+
-		" %s\n"+
-		"---------------------------\n"+
-		"(張)   買  |   賣  |    總\n"+
-		"外資 %6v| %6v| %6v\n"+
-		"投信 %6v| %6v| %6v\n"+
-		"自營 %6v| %6v| %6v\n"+
-		"總共 %6v| %6v| %6v\n"+
-		"```",
-		legalPerson.StockName, legalPerson.StockId,
-		center(typeTitle, w),
-		center(dateTitle, w),
-		legalPerson.Foreign.Buy/1000, legalPerson.Foreign.Sell/1000, legalPerson.Foreign.Total/1000,
-		legalPerson.Investment.Buy/1000, legalPerson.Investment.Sell/1000, legalPerson.Investment.Total/1000,
-		legalPerson.Dealer.Buy/1000, legalPerson.Dealer.Sell/1000, legalPerson.Dealer.Total/1000,
-		legalPerson.Total.Buy/1000, legalPerson.Total.Sell/1000, legalPerson.Total.Total/1000,
-	)
-}
-
-func convertTotalLegalPerson(legalPerson LegalPerson) string {
-	typeTitle := strings.Split(legalPerson.Title, " ")[1]
-	dateTitle := strings.Split(legalPerson.Title, " ")[0]
-	w := 24
-
-	center := func(s string, w int) string {
-		return fmt.Sprintf("%*s", w/2, s[:len(s)/2]) + fmt.Sprintf("%*s", -w/2, s[len(s)/2:])
-	}
-
-	return fmt.Sprintf("```\n"+
-		"%s\n"+
-		"   %s\n"+
-		"----------------------------\n"+
-		"(億)   買   |  賣   |   總\n"+
-		"外資 %7.2f|%7.2f|%7.2f\n"+
-		"投信 %7.2f|%7.2f|%7.2f\n"+
-		"自營 %7.2f|%7.2f|%7.2f\n"+
-		"總共 %7.2f|%7.2f|%7.2f\n"+
-		"```",
-		center(typeTitle, w),
-		center(dateTitle, w),
-		float64(legalPerson.Foreign.Buy)/100000000, float64(legalPerson.Foreign.Sell)/100000000, float64(legalPerson.Foreign.Total)/100000000,
-		float64(legalPerson.Investment.Buy)/100000000, float64(legalPerson.Investment.Sell)/100000000, float64(legalPerson.Investment.Total)/100000000,
-		float64(legalPerson.Dealer.Buy)/100000000, float64(legalPerson.Dealer.Sell)/100000000, float64(legalPerson.Dealer.Total)/100000000,
-		float64(legalPerson.Total.Buy)/100000000, float64(legalPerson.Total.Sell)/100000000, float64(legalPerson.Total.Total)/100000000,
 	)
 }

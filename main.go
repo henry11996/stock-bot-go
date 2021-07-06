@@ -52,50 +52,67 @@ func run(command string, args []string, c chan string) {
 
 	defer func() {
 		if r := recover(); r != nil {
-			c <- "無法取得```" + command + "```"
-			log.Println("Recovered in ", r)
+			err := ""
+			switch x := r.(type) {
+			case string:
+				err = x
+			case error:
+				err = x.Error()
+			}
+			c <- "無法取得```" + command + "```，" + err
 		}
 	}()
 
 	stockId, _ := query(command)
-
-	if len(args) > 0 && args[0] == "i" {
-		meta, _ := fugle.Meta(stockId, false)
-		c <- convertInfo(meta.Data)
-	} else if len(args) > 0 && args[0] == "d" {
-		releaseTime := time.Date(Now.Year(), Now.Month(), Now.Day(), 16, 2, 0, 0, Loc)
-		if Now.Before(releaseTime) {
-			Now = Now.AddDate(0, 0, -1)
-		}
-		var res LegalPersonResponse
-		if len(args) > 1 {
-			res = getDateLegalPersons(args[1])
+	var err error
+	if command == "tw" {
+		if len(args) > 0 && args[0] == "d" {
+			t := Now
+			if len(args) > 1 {
+				t, err = time.Parse("2006/01/02", args[1])
+				if err != nil {
+					log.Panic("錯誤日期格式yyyy/mm/dd")
+				}
+			}
+			lp, err := getDayTotalLegalPerson(t)
+			if err != nil {
+				log.Panic(err)
+			}
+			c <- lp.PrettyString()
 		} else {
-			res = getDateLegalPersons(Now.Format("20060102"))
+			log.Panic("錯誤指令")
 		}
-		legal := res.getByStock(stockId, command)
-		c <- convertLegalPerson(legal)
-	} else if len(args) > 0 && args[0] == "m" {
-		var res LegalPersonResponse
-		if len(args) > 1 {
-			res = getMonthLegalPersons(args[1])
-		} else {
-			res = getMonthLegalPersons(Now.Format("20060102"))
-		}
-		legal := res.getByStock(stockId, command)
-		c <- convertLegalPerson(legal)
-	} else if command == "tw" {
-		var legal LegalPerson
-		if len(args) > 0 {
-			legal = getDayTotalLegalPerson(args[0])
-		} else {
-			legal = getDayTotalLegalPerson(Now.Format("20060102"))
-		}
-		c <- convertTotalLegalPerson(legal)
 	} else {
-		meta, _ := fugle.Meta(stockId, false)
-		quote, _ := fugle.Quote(stockId, false)
-		meta.Data.Quote = quote.Data.Quote
-		c <- convertQuote(meta.Data)
+		if len(args) > 0 && args[0] == "i" {
+			meta, _ := fugle.Meta(stockId, false)
+			c <- convertInfo(meta.Data)
+		} else if len(args) > 0 && args[0] == "d" {
+			t := Now
+			if len(args) > 1 {
+				t, err = time.Parse("2006/01/02", args[1])
+				if err != nil {
+					log.Panic("錯誤日期格式yyyy/mm/dd")
+				}
+			}
+			lp, _ := getDayLegalPersons(t)
+
+			c <- lp.FindStock(stockId, command).PrettyString(lp.Title)
+		} else if len(args) > 0 && args[0] == "m" {
+			t := Now
+			if len(args) > 1 {
+				t, err = time.Parse("2006/01", args[1])
+				if err != nil {
+					log.Panic("錯誤日期格式yyyy/mm")
+				}
+			}
+			lp, _ := getMonthLegalPersons(t)
+
+			c <- lp.FindStock(stockId, command).PrettyString(lp.Title)
+		} else {
+			meta, _ := fugle.Meta(stockId, false)
+			quote, _ := fugle.Quote(stockId, false)
+			meta.Data.Quote = quote.Data.Quote
+			c <- convertQuote(meta.Data)
+		}
 	}
 }
