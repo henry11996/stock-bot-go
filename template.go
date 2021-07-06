@@ -84,7 +84,7 @@ func convertQuote(data fugle.Data) string {
 	var bestPrices string
 
 	if len(data.Quote.Order.Bestbids) > 0 || len(data.Quote.Order.Bestasks) > 0 {
-		for i := 0; i < 5; i++ {
+		for i := 4; i >= 0; i-- {
 			bidPrice := ""
 			bidUnit := ""
 			if len(data.Quote.Order.Bestbids) > i {
@@ -106,7 +106,7 @@ func convertQuote(data fugle.Data) string {
 					}
 					askUnit = strconv.Itoa(bestasks.Unit)
 				}
-				if i == j {
+				if i == 5-j {
 					bestPrices += fmt.Sprintf("%6s %5s \\| %6s %5s\n", bidPrice, bidUnit, askPrice, askUnit)
 				}
 			}
