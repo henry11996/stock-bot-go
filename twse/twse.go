@@ -9,6 +9,13 @@ import (
 	"time"
 )
 
+type OTCLegalPersonResponse struct {
+	ReportTitle   string
+	ReportDate    string
+	ITotalRecords int
+	AaData        [][]string
+}
+
 type LegalPersonResponse struct {
 	Stat   string
 	Date   string
@@ -53,7 +60,7 @@ var Loc, _ = time.LoadLocation("Asia/Taipei")
 
 func DayLegalPersonTotal(date time.Time) (*LegalPersonTotal, error) {
 	var url string
-	if date.Equal(time.Now().In(Loc)) {
+	if date.Format("20060102") == time.Now().In(Loc).Format("20060102") {
 		url = "https://www.twse.com.tw/fund/BFI82U?response=json&weekDate=&monthDate=&type=day"
 	} else {
 		url = fmt.Sprintf("https://www.twse.com.tw/fund/BFI82U?response=json&weekDate=&monthDate=&type=day&dayDate=%s", date.Format("20060102"))
@@ -70,7 +77,7 @@ func DayLegalPersonTotal(date time.Time) (*LegalPersonTotal, error) {
 
 func MonthLegalPersons(date time.Time) (*LegalPersonStocks, error) {
 	var url string
-	if date.Equal(time.Now().In(Loc)) {
+	if date.Format("20060102") == time.Now().In(Loc).Format("20060102") {
 		url = "https://www.twse.com.tw/fund/TWT47U?response=json&selectType=ALL"
 	} else {
 		url = fmt.Sprintf("https://www.twse.com.tw/fund/TWT47U?response=json&selectType=ALL&date=%s", date.Format("20060102"))
@@ -94,7 +101,7 @@ func MonthLegalPersons(date time.Time) (*LegalPersonStocks, error) {
 
 func DayLegalPersons(date time.Time) (*LegalPersonStocks, error) {
 	var url string
-	if date.Equal(time.Now().In(Loc)) {
+	if date.Format("200601") == time.Now().In(Loc).Format("200601") {
 		url = "https://www.twse.com.tw/fund/T86?response=json&selectType=ALL"
 	} else {
 		url = fmt.Sprintf("https://www.twse.com.tw/fund/T86?response=json&selectType=ALL&date=%s", date.Format("20060102"))
@@ -112,6 +119,29 @@ func DayLegalPersons(date time.Time) (*LegalPersonStocks, error) {
 	}
 	for _, data := range response.Data {
 		stocks.Stocks = append(stocks.Stocks, NewLegalPersonStock(data))
+	}
+	return stocks, nil
+}
+
+func DayOTCLegalPersons(date time.Time) (*LegalPersonStocks, error) {
+	var url string
+	if date.Format("200601") == time.Now().In(Loc).Format("200601") {
+		url = "https://www.tpex.org.tw/web/stock/3insti/daily_trade/3itrade_hedge_result.php?l=zh-tw&se=EW&t=D&"
+	} else {
+		url = fmt.Sprintf("https://www.tpex.org.tw/web/stock/3insti/daily_trade/3itrade_hedge_result.php?l=zh-tw&se=EW&t=D&d=110/07/05%s", strconv.Itoa(date.Year()-1911)+"/"+date.Format("01/02"))
+	}
+	stocks := &LegalPersonStocks{}
+	response := &OTCLegalPersonResponse{}
+	err := request(url, response)
+	if err != nil {
+		return stocks, err
+	}
+	stocks = &LegalPersonStocks{
+		Title: response.ReportTitle,
+		Date:  response.ReportDate,
+	}
+	for _, data := range response.AaData {
+		stocks.Stocks = append(stocks.Stocks, NewOTCLegalPersonStock(data))
 	}
 	return stocks, nil
 }
@@ -156,6 +186,56 @@ func NewLegalPersonStock(stockData []string) LegalPersonStock {
 	dealerTotal := formatNumber(stockData[11])
 
 	total := formatNumber(stockData[18])
+
+	legalPerson := &LegalPersonStock{
+		Id:   strings.Trim(stockData[0], " "),
+		Name: strings.Trim(stockData[1], " "),
+		Foreign: LegalPersonTransaction{
+			Buy:   foreignBuy,
+			Sell:  foreignSell,
+			Total: foreignTotal,
+		},
+		Investment: LegalPersonTransaction{
+			Buy:   investmentBuy,
+			Sell:  investmentSell,
+			Total: investmentTotal,
+		},
+		Dealer: LegalPersonTransaction{
+			Buy:   dealerBuy,
+			Sell:  dealerSell,
+			Total: dealerTotal,
+		},
+		Total: LegalPersonTransaction{
+			Buy:   foreignBuy + investmentBuy + dealerBuy,
+			Sell:  foreignSell + investmentSell + dealerSell,
+			Total: total,
+		},
+	}
+	return *legalPerson
+}
+
+func NewOTCLegalPersonStock(stockData []string) LegalPersonStock {
+	formatNumber := func(s string) int {
+		i, err := strconv.Atoi(strings.ReplaceAll(strings.Trim(s, " "), ",", ""))
+		if err != nil {
+			panic(err)
+		}
+		return i
+	}
+
+	foreignBuy := formatNumber(stockData[8])
+	foreignSell := formatNumber(stockData[9])
+	foreignTotal := formatNumber(stockData[10])
+
+	investmentBuy := formatNumber(stockData[11])
+	investmentSell := formatNumber(stockData[12])
+	investmentTotal := formatNumber(stockData[13])
+
+	dealerBuy := formatNumber(stockData[20])
+	dealerSell := formatNumber(stockData[21])
+	dealerTotal := formatNumber(stockData[22])
+
+	total := formatNumber(stockData[23])
 
 	legalPerson := &LegalPersonStock{
 		Id:   strings.Trim(stockData[0], " "),

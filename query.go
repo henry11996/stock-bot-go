@@ -112,6 +112,11 @@ func getDayLegalPersons(date time.Time) (*twse.LegalPersonStocks, error) {
 	if err != nil {
 		return &twse.LegalPersonStocks{}, err
 	}
+	otclegalPersons, err := twse.DayOTCLegalPersons(date)
+	if err != nil {
+		return &twse.LegalPersonStocks{}, err
+	}
+	legalPersons.Stocks = append(legalPersons.Stocks, otclegalPersons.Stocks...)
 	Cache.Set(cacheKey+legalPersons.Date, legalPersons, cache.NoExpiration)
 	return legalPersons, nil
 }

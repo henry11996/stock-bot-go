@@ -15,7 +15,6 @@ func main() {
 
 	InitCache()
 	InitSchedule()
-
 	for update := range updates {
 		if update.Message == nil {
 			continue
