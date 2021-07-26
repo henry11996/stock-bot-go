@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"math/big"
 	"strconv"
 
@@ -81,7 +82,7 @@ func convertQuote(data fugle.Data) string {
 	percent = currentPirce.Sub(data.Meta.PriceReference).Div(data.Meta.PriceReference).Mul(hunded).BigFloat()
 	minus = currentPirce.Sub(data.Meta.PriceReference).BigFloat()
 	var bestPrices string
-
+	log.Print(data.Quote.Order)
 	if len(data.Quote.Order.Bestbids) > 0 || len(data.Quote.Order.Bestasks) > 0 {
 		for i := 4; i >= 0; i-- {
 			bidPrice := ""
@@ -105,7 +106,7 @@ func convertQuote(data fugle.Data) string {
 					}
 					askUnit = strconv.Itoa(bestasks.Unit)
 				}
-				if i == 5-j {
+				if i == 4-j {
 					bestPrices += fmt.Sprintf("%6s %5s \\| %6s %5s\n", bidPrice, bidUnit, askPrice, askUnit)
 				}
 			}
