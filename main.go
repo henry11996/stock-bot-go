@@ -78,6 +78,19 @@ func run(command string, args []string, c chan string) {
 				log.Panic(err)
 			}
 			c <- lp.PrettyString()
+		} else if len(args) > 0 && args[0] == "m" {
+			t := Now
+			if len(args) > 1 {
+				t, err = time.Parse("2006/01", args[1])
+				if err != nil {
+					log.Panic("錯誤日期格式yyyy/mm")
+				}
+			}
+			lp, err := getMonthTotalLegalPerson(t)
+			if err != nil {
+				log.Panic(err)
+			}
+			c <- lp.PrettyString()
 		} else {
 			log.Panic("錯誤指令")
 		}

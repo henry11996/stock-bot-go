@@ -75,6 +75,23 @@ func DayLegalPersonTotal(date time.Time) (*LegalPersonTotal, error) {
 	return legalPerson, nil
 }
 
+func MonthLegalPersonTotal(date time.Time) (*LegalPersonTotal, error) {
+	var url string
+	if date.Format("20060102") == time.Now().In(Loc).Format("20060102") {
+		url = "https://www.twse.com.tw/fund/BFI82U?response=json&weekDate=&monthDate=&type=month"
+	} else {
+		url = fmt.Sprintf("https://www.twse.com.tw/fund/BFI82U?response=json&weekDate=&monthDate=%s&type=month&dayDate=", date.Format("20060102"))
+	}
+	response := &LegalPersonResponse{}
+	legalPerson := &LegalPersonTotal{}
+	err := request(url, response)
+	if err != nil {
+		return legalPerson, err
+	}
+	legalPerson = NewLegalPersonTotal(response.Date, response.Title, response.Data)
+	return legalPerson, nil
+}
+
 func MonthLegalPersons(date time.Time) (*LegalPersonStocks, error) {
 	var url string
 	if date.Format("20060102") == time.Now().In(Loc).Format("20060102") {

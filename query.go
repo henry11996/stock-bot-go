@@ -89,6 +89,19 @@ func getDayTotalLegalPerson(date time.Time) (*twse.LegalPersonTotal, error) {
 	return totalPerson, nil
 }
 
+func getMonthTotalLegalPerson(date time.Time) (*twse.LegalPersonTotal, error) {
+	cacheKey := "month_total_legal_persons_"
+	if x, found := Cache.Get(cacheKey + date.Format("200601") + "01"); found {
+		return x.(*twse.LegalPersonTotal), nil
+	}
+	totalPerson, err := twse.MonthLegalPersonTotal(date)
+	if err != nil {
+		return &twse.LegalPersonTotal{}, err
+	}
+	Cache.Set(cacheKey+totalPerson.Date, totalPerson, cache.NoExpiration)
+	return totalPerson, nil
+}
+
 func getMonthLegalPersons(date time.Time) (*twse.LegalPersonStocks, error) {
 	cacheKey := "month_legal_persons_"
 	if x, found := Cache.Get(cacheKey + date.Format("200601") + "01"); found {
