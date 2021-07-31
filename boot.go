@@ -12,7 +12,7 @@ import (
 
 var Bot *tgbotapi.BotAPI
 
-func boot() (*tgbotapi.BotAPI, tgbotapi.UpdatesChannel) {
+func Boot() (*tgbotapi.BotAPI, tgbotapi.UpdatesChannel) {
 	var err error
 	_ = godotenv.Load()
 	Bot, err = tgbotapi.NewBotAPI(os.Getenv("TELEGRAM_APITOKEN"))

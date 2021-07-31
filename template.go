@@ -17,9 +17,6 @@ func convertInfo(data fugle.Data) string {
 		status += "暫停買賣 "
 	}
 	if data.Meta.CanShortMargin && data.Meta.CanShortLend {
-		status += "暫停買賣 "
-	}
-	if data.Meta.CanShortMargin && data.Meta.CanShortLend {
 		status += "可融資券 "
 	} else if data.Meta.CanShortMargin {
 		status += "禁融券 "
@@ -84,29 +81,29 @@ func convertQuote(data fugle.Data) string {
 	var bestPrices string
 	log.Print(data.Quote.Order)
 	if len(data.Quote.Order.Bestbids) > 0 || len(data.Quote.Order.Bestasks) > 0 {
-		for i := 4; i >= 0; i-- {
-			bidPrice := ""
-			bidUnit := ""
-			if len(data.Quote.Order.Bestbids) > i {
-				bestbids := data.Quote.Order.Bestbids[len(data.Quote.Order.Bestbids)-1-i]
-				bidPrice = bestbids.Price.StringFixed(2)
-				if bidPrice == "0.00" {
-					bidPrice = "市價"
+		for j := 0; j < 5; j++ {
+			askPrice := ""
+			askUnit := ""
+			if len(data.Quote.Order.Bestasks) > j {
+				bestasks := data.Quote.Order.Bestasks[j]
+				askPrice = bestasks.Price.StringFixed(2)
+				if askPrice == "0.00" {
+					askPrice = "市價"
 				}
-				bidUnit = strconv.Itoa(bestbids.Unit)
+				askUnit = strconv.Itoa(bestasks.Unit)
 			}
-			for j := 0; j < 5; j++ {
-				askPrice := ""
-				askUnit := ""
-				if len(data.Quote.Order.Bestasks) > j {
-					bestasks := data.Quote.Order.Bestasks[j]
-					askPrice = bestasks.Price.StringFixed(2)
-					if askPrice == "0.00" {
-						askPrice = "市價"
+			for i := 0; i < 5; i++ {
+				bidPrice := ""
+				bidUnit := ""
+				if len(data.Quote.Order.Bestbids) > i {
+					bestbids := data.Quote.Order.Bestbids[i]
+					bidPrice = bestbids.Price.StringFixed(2)
+					if bidPrice == "0.00" {
+						bidPrice = "市價"
 					}
-					askUnit = strconv.Itoa(bestasks.Unit)
+					bidUnit = strconv.Itoa(bestbids.Unit)
 				}
-				if i == 4-j {
+				if i == j {
 					bestPrices += fmt.Sprintf("%6s %5s \\| %6s %5s\n", bidPrice, bidUnit, askPrice, askUnit)
 				}
 			}
@@ -116,7 +113,7 @@ func convertQuote(data fugle.Data) string {
 	}
 
 	return fmt.Sprintf("``` %9s(%s)  %s \n"+
-		"高 %4v \\| 低 %4v \\| 總 %5v\n"+
+		"高 %4v\\ |低 %4v\\ |總 %5v\n"+
 		"\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\n"+
 		"            %v         \n"+
 		"    買   %2.2f %2.2f%%   賣\n"+

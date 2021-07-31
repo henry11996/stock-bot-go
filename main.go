@@ -11,7 +11,7 @@ import (
 var Loc, _ = time.LoadLocation("Asia/Taipei")
 
 func main() {
-	bot, updates := boot()
+	bot, updates := Boot()
 
 	InitCache()
 	InitSchedule()
