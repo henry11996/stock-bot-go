@@ -14,7 +14,6 @@ var Bot *tgbotapi.BotAPI
 
 func Boot() (*tgbotapi.BotAPI, tgbotapi.UpdatesChannel) {
 	var err error
-	_ = godotenv.Load()
 	Bot, err = tgbotapi.NewBotAPI(os.Getenv("TELEGRAM_APITOKEN"))
 	if err != nil {
 		log.Panic(err)
@@ -62,4 +61,8 @@ func fugleInit() fugle.Client {
 		log.Fatal("failed to init fugle api client, " + err.Error())
 	}
 	return client
+}
+
+func InitEnv() error {
+	return godotenv.Load()
 }

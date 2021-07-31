@@ -11,8 +11,8 @@ import (
 var Loc, _ = time.LoadLocation("Asia/Taipei")
 
 func main() {
+	InitEnv()
 	bot, updates := Boot()
-
 	InitCache()
 	InitSchedule()
 	for update := range updates {
@@ -21,9 +21,7 @@ func main() {
 		}
 		log.Printf("[%s(%v)] %s", update.Message.From.UserName, update.Message.Chat.ID, update.Message.Text)
 
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
-
-		c := make(chan string)
+		c := make(chan interface{})
 
 		args := strings.Split(update.Message.Text, " ")
 		if len(args) > 1 {
@@ -34,17 +32,30 @@ func main() {
 
 		go run(strings.Split(update.Message.Text, " ")[0][1:], args, c)
 
-		msg.Text = <-c
-		msg.ParseMode = "MarkdownV2"
-		log.Print(msg.Text)
-		_, err := bot.Send(msg)
-		if err != nil {
-			log.Print(err)
+		message := <-c
+		switch v := message.(type) {
+		case string:
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
+			msg.Text = v
+			msg.ParseMode = "MarkdownV2"
+			_, err := bot.Send(msg)
+			if err != nil {
+				log.Print(err)
+			}
+		case []byte:
+			msg := tgbotapi.NewPhotoUpload(update.Message.Chat.ID, tgbotapi.FileBytes{
+				Bytes: v,
+			})
+			_, err := bot.Send(msg)
+			if err != nil {
+				log.Print(err)
+			}
+		default:
 		}
 	}
 }
 
-func run(command string, args []string, c chan string) {
+func run(command string, args []string, c chan interface{}) {
 	var Now = time.Now().In(Loc)
 
 	fugle := fugleInit()
@@ -120,6 +131,13 @@ func run(command string, args []string, c chan string) {
 			lp, _ := getMonthLegalPersons(t)
 
 			c <- lp.FindStock(stockId, command).PrettyString(lp.Title)
+		} else if len(args) > 0 && args[0] == "p" {
+			fugle := fugleInit()
+			meta, _ := fugle.Meta(stockId, false)
+			res, _ := fugle.Chart(stockId, false)
+			res.Data.Meta = meta.Data.Meta
+			png := newPlot(res.Data)
+			c <- png
 		} else {
 			meta, _ := fugle.Meta(stockId, false)
 			quote, _ := fugle.Quote(stockId, false)
