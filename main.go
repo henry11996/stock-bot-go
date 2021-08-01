@@ -1,14 +1,17 @@
 package main
 
 import (
+	"io/ioutil"
 	"log"
 	"strings"
 	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	"github.com/golang/freetype/truetype"
 )
 
 var Loc, _ = time.LoadLocation("Asia/Taipei")
+var DefaultFont = readFont()
 
 func main() {
 	InitEnv()
@@ -145,4 +148,16 @@ func run(command string, args []string, c chan interface{}) {
 			c <- convertQuote(meta.Data)
 		}
 	}
+}
+
+func readFont() *truetype.Font {
+	b, err := ioutil.ReadFile("./fonts/TaipeiSansTCBeta-Bold.ttf")
+	if err != nil {
+		log.Panic(err)
+	}
+	font, err := truetype.Parse(b)
+	if err != nil {
+		log.Panic(err)
+	}
+	return font
 }

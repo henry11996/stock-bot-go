@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"log"
 	"sort"
 	"time"
@@ -19,19 +20,38 @@ func newPlot(data fugle.Data) []byte {
 		Name: "Price",
 		Style: chart.Style{
 			StrokeColor: chart.GetDefaultColor(0),
-			StrokeWidth: 4,
+			StrokeWidth: 6,
 			Show:        true,
 		},
 		XValues: xv,
 		YValues: yv,
 	}
 
+	minSeries := &chart.MinSeries{
+		Style: chart.Style{
+			Show:            true,
+			StrokeColor:     chart.ColorWhite,
+			StrokeDashArray: []float64{3.0, 3.0},
+			FontColor:       chart.ColorAlternateGreen,
+		},
+		InnerSeries: priceSeries,
+	}
+	maxSeries := &chart.MaxSeries{
+		Style: chart.Style{
+			Show:            true,
+			StrokeColor:     chart.ColorWhite,
+			StrokeDashArray: []float64{3.0, 3.0},
+			FontColor:       chart.ColorRed,
+		},
+		InnerSeries: priceSeries,
+	}
+
 	smaSeries := chart.SMASeries{
-		Name:   "MA",
+		Name:   "MA5",
 		Period: 5,
 		Style: chart.Style{
-			StrokeColor:     drawing.ColorRed,
-			StrokeWidth:     4,
+			StrokeColor:     drawing.ColorFromHex("ccefff"),
+			StrokeWidth:     6,
 			StrokeDashArray: []float64{5.0, 5.0},
 			Show:            true,
 		},
@@ -48,16 +68,30 @@ func newPlot(data fugle.Data) []byte {
 		InnerSeries: priceSeries,
 	}
 
+	base, _ := data.Meta.PriceReference.Float64()
+	baseSeries := &BaseSeries{
+		Style: chart.Style{
+			Show:            true,
+			StrokeWidth:     3,
+			StrokeColor:     chart.ColorWhite,
+			StrokeDashArray: []float64{1.0, 1.0},
+		},
+		InnerSeries: priceSeries,
+		BaseValue:   &base,
+	}
+
 	max, _ := data.Meta.PriceHighLimit.Float64()
 	min, _ := data.Meta.PriceLowLimit.Float64()
+	yticks := priceTicks(base, min, max)
 	graph := chart.Chart{
-		Title: data.Meta.NameZhTw + "(" + data.Info.SymbolID + ")",
+		Title: data.Meta.NameZhTw + "(" + data.Info.SymbolID + ") " + data.Info.Date,
 		TitleStyle: chart.Style{
 			Show: true,
 		},
 		Width:        4096,
 		Height:       2800,
 		DPI:          400,
+		Font:         DefaultFont,
 		ColorPalette: darkColorPalette,
 		XAxis: chart.XAxis{
 			TickPosition: chart.TickPositionBetweenTicks,
@@ -71,16 +105,30 @@ func newPlot(data fugle.Data) []byte {
 				Max: max,
 				Min: min,
 			},
+			Ticks: yticks,
 			Style: chart.Style{
 				Show: true,
 			},
 		},
 		Series: []chart.Series{
+			baseSeries,
+			maxSeries,
+			minSeries,
 			bbSeries,
-			priceSeries,
 			smaSeries,
+			priceSeries,
+			chart.LastValueAnnotation(minSeries),
+			chart.LastValueAnnotation(maxSeries),
 		},
 	}
+
+	graph.Elements = []chart.Renderable{
+		chart.Legend(&graph, chart.Style{
+			FillColor: BlackColor,
+			FontColor: chart.ColorWhite,
+		}),
+	}
+
 	buffer := bytes.NewBuffer([]byte{})
 	err := graph.Render(chart.PNG, buffer)
 	if err != nil {
@@ -103,30 +151,48 @@ func xvalues(data map[time.Time]fugle.Deal) []time.Time {
 func yvalues(data map[time.Time]fugle.Deal, times []time.Time) []float64 {
 	ys := []float64{}
 	for _, time := range times {
-		y, _ := data[time].Open.Float64()
+		y, _ := data[time].Close.Float64()
 		ys = append(ys, y)
 	}
 	return ys
 }
 
+func priceTicks(start float64, min float64, max float64) []chart.Tick {
+	ticks := make([]chart.Tick, 0)
+	ticks = append(ticks, chart.Tick{Value: min, Label: fmt.Sprintf("%f", min)})
+	step := (max - min) / 10
+	for i := 0; i < 9; i++ {
+		v := min + step*float64((i+1))
+		if i == 4 {
+			ticks = append(ticks, chart.Tick{Value: start, Label: fmt.Sprintf("%f", start)})
+		} else {
+			ticks = append(ticks, chart.Tick{Value: v, Label: fmt.Sprintf("%f", v)})
+		}
+	}
+	ticks = append(ticks, chart.Tick{Value: max, Label: fmt.Sprintf("%f", max)})
+	return ticks
+}
+
 var darkColorPalette DarkColorPalette
+
+var BlackColor = drawing.Color{R: 10, G: 10, B: 10, A: 255}
 
 type DarkColorPalette struct{}
 
 func (ap DarkColorPalette) BackgroundColor() drawing.Color {
-	return chart.ColorBlack
+	return BlackColor
 }
 
 func (ap DarkColorPalette) BackgroundStrokeColor() drawing.Color {
-	return chart.ColorBlack
+	return BlackColor
 }
 
 func (ap DarkColorPalette) CanvasColor() drawing.Color {
-	return chart.ColorBlack
+	return BlackColor
 }
 
 func (ap DarkColorPalette) CanvasStrokeColor() drawing.Color {
-	return chart.ColorBlack
+	return BlackColor
 }
 
 func (ap DarkColorPalette) AxisStrokeColor() drawing.Color {
