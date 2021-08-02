@@ -14,7 +14,7 @@ import (
 
 func newPlot(data fugle.Data) []byte {
 	xv := xvalues(data.Chart)
-	yv := yvalues(data.Chart, xv)
+	yv, largest, smallest := yvalues(data.Chart, xv)
 
 	priceSeries := chart.TimeSeries{
 		Name: "Price",
@@ -82,6 +82,12 @@ func newPlot(data fugle.Data) []byte {
 
 	max, _ := data.Meta.PriceHighLimit.Float64()
 	min, _ := data.Meta.PriceLowLimit.Float64()
+	if max == 0 {
+		max = largest + largest*0.01
+	}
+	if min == 0 {
+		min = smallest - smallest*0.01
+	}
 	yticks := priceTicks(base, min, max)
 	graph := chart.Chart{
 		Title: data.Meta.NameZhTw + "(" + data.Info.SymbolID + ") " + data.Info.Date,
@@ -148,13 +154,20 @@ func xvalues(data map[time.Time]fugle.Deal) []time.Time {
 	return times
 }
 
-func yvalues(data map[time.Time]fugle.Deal, times []time.Time) []float64 {
+func yvalues(data map[time.Time]fugle.Deal, times []time.Time) ([]float64, float64, float64) {
 	ys := []float64{}
+	smallest, _ := data[times[0]].Close.Float64()
+	largest, _ := data[times[0]].Close.Float64()
 	for _, time := range times {
 		y, _ := data[time].Close.Float64()
 		ys = append(ys, y)
+		if y > largest {
+			largest = y
+		} else if y < smallest {
+			smallest = y
+		}
 	}
-	return ys
+	return ys, largest, smallest
 }
 
 func priceTicks(start float64, min float64, max float64) []chart.Tick {

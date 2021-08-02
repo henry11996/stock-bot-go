@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"math/big"
 	"strconv"
 
 	"github.com/henry11996/fugle-golang/fugle"
@@ -74,53 +72,46 @@ func convertQuote(data fugle.Data) string {
 		currentPirce = data.Quote.Trade.Price
 	}
 
-	var percent, minus *big.Float
-	hunded := decimal.NewFromInt(100)
-	percent = currentPirce.Sub(data.Meta.PriceReference).Div(data.Meta.PriceReference).Mul(hunded).BigFloat()
-	minus = currentPirce.Sub(data.Meta.PriceReference).BigFloat()
-	var bestPrices string
-	log.Print(data.Quote.Order)
-	if len(data.Quote.Order.Bestbids) > 0 || len(data.Quote.Order.Bestasks) > 0 {
-		for j := 0; j < 5; j++ {
-			askPrice := ""
-			askUnit := ""
-			if len(data.Quote.Order.Bestasks) > j {
-				bestasks := data.Quote.Order.Bestasks[j]
-				askPrice = bestasks.Price.StringFixed(2)
-				if askPrice == "0.00" {
-					askPrice = "市價"
-				}
-				askUnit = strconv.Itoa(bestasks.Unit)
+	percent := currentPirce.Sub(data.Meta.PriceReference).Div(data.Meta.PriceReference).Mul(decimal.NewFromInt(100)).BigFloat()
+	minus := currentPirce.Sub(data.Meta.PriceReference).BigFloat()
+	fivePricesText, totalUnitText := "", ""
+	totalAskUnit, totalBidUnit := 0, 0
+	for i := 0; i < 5; i++ {
+		askPrice, askUnit, bidPrice, bidUnit := "", "", "", ""
+		if len(data.Quote.Order.Bestasks) > i {
+			bestasks := data.Quote.Order.Bestasks[i]
+			askPrice = bestasks.Price.StringFixed(2)
+			totalAskUnit += bestasks.Unit
+			if askPrice == "0.00" {
+				askPrice = "市價"
 			}
-			for i := 0; i < 5; i++ {
-				bidPrice := ""
-				bidUnit := ""
-				if len(data.Quote.Order.Bestbids) > i {
-					bestbids := data.Quote.Order.Bestbids[i]
-					bidPrice = bestbids.Price.StringFixed(2)
-					if bidPrice == "0.00" {
-						bidPrice = "市價"
-					}
-					bidUnit = strconv.Itoa(bestbids.Unit)
-				}
-				if i == j {
-					bestPrices += fmt.Sprintf("%6s %5s \\| %6s %5s\n", bidPrice, bidUnit, askPrice, askUnit)
-				}
-			}
+			askUnit = strconv.Itoa(bestasks.Unit)
 		}
-	} else {
-		bestPrices = ""
+		if len(data.Quote.Order.Bestbids) > i {
+			bestbids := data.Quote.Order.Bestbids[i]
+			bidPrice = bestbids.Price.StringFixed(2)
+			totalBidUnit += bestbids.Unit
+			if bidPrice == "0.00" {
+				bidPrice = "市價"
+			}
+			bidUnit = strconv.Itoa(bestbids.Unit)
+		}
+		fivePricesText += fmt.Sprintf("%-5s %6s \\| %6s %5s\n", bidUnit, bidPrice, askPrice, askUnit)
 	}
+	totalUnitText += fmt.Sprintf("%-12v   %12v\n", totalBidUnit, totalAskUnit)
 
 	return fmt.Sprintf("``` %9s(%s)  %s \n"+
 		"高 %4v\\ |低 %4v\\ |總 %5v\n"+
 		"\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\n"+
 		"            %v         \n"+
-		"    買   %2.2f %2.2f%%   賣\n"+
+		" 買      %2.2f %2.2f%%     賣\n"+
 		"\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\n"+
-		"%s```", data.Meta.NameZhTw, data.Info.SymbolID, status,
+		"%s"+
+		"\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\n"+
+		"%s"+
+		"```", data.Meta.NameZhTw, data.Info.SymbolID, status,
 		data.Quote.PriceHigh.Price, data.Quote.PriceLow.Price, data.Quote.Total.Unit,
 		currentPirce.BigFloat(), minus, percent,
-		bestPrices,
+		fivePricesText, totalUnitText,
 	)
 }

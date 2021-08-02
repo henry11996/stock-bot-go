@@ -105,8 +105,21 @@ func run(command string, args []string, c chan interface{}) {
 				log.Panic(err)
 			}
 			c <- lp.PrettyString()
+		} else if len(args) > 0 && args[0] == "p" {
+			meta, _ := fugle.Meta("TWSE_SEM_INDEX_1", false)
+			chart, _ := fugle.Chart("TWSE_SEM_INDEX_1", false)
+			chart.Data.Meta = meta.Data.Meta
+			chart.Data.Meta.NameZhTw = "加權指數"
+			chart.Data.Info.SymbolID = "TWSE"
+			png := newPlot(chart.Data)
+			c <- png
 		} else {
-			log.Panic("錯誤指令")
+			meta, _ := fugle.Meta("TWSE_SEM_INDEX_1", false)
+			quote, _ := fugle.Quote("TWSE_SEM_INDEX_1", false)
+			meta.Data.Meta.NameZhTw = "加權指數"
+			meta.Data.Info.SymbolID = "TWSE"
+			meta.Data.Quote = quote.Data.Quote
+			c <- convertQuote(meta.Data)
 		}
 	} else {
 		if len(args) > 0 && args[0] == "i" {
@@ -135,7 +148,6 @@ func run(command string, args []string, c chan interface{}) {
 
 			c <- lp.FindStock(stockId, command).PrettyString(lp.Title)
 		} else if len(args) > 0 && args[0] == "p" {
-			fugle := fugleInit()
 			meta, _ := fugle.Meta(stockId, false)
 			res, _ := fugle.Chart(stockId, false)
 			res.Data.Meta = meta.Data.Meta
