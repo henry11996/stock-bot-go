@@ -33,8 +33,8 @@ func botInit(bot *tgbotapi.BotAPI) tgbotapi.UpdatesChannel {
 		u.Timeout = 60
 		updates, _ = bot.GetUpdatesChan(u)
 	} else {
-		url := os.Getenv("HEROKU_APP_NAME") + ".herokuapp.com" + "/"
-		_, err = bot.SetWebhook(tgbotapi.NewWebhook(url + bot.Token))
+		url := os.Getenv("TELEGRAM_WEBHOOK_URL") + "/" + bot.Token
+		_, err = bot.SetWebhook(tgbotapi.NewWebhook(url))
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -53,7 +53,7 @@ func botInit(bot *tgbotapi.BotAPI) tgbotapi.UpdatesChannel {
 	return updates
 }
 
-func fugleInit() fugle.Client {
+func Initfugle() fugle.Client {
 	client, err := fugle.NewFugleClient(fugle.ClientOption{
 		ApiToken: os.Getenv("FUGLE_API_TOKEN"),
 	})

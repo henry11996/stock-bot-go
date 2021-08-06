@@ -1,4 +1,4 @@
-package main
+package plot
 
 import (
 	"bytes"
@@ -7,12 +7,13 @@ import (
 	"sort"
 	"time"
 
+	"github.com/golang/freetype/truetype"
 	"github.com/henry11996/fugle-golang/fugle"
 	"github.com/wcharczuk/go-chart"
 	"github.com/wcharczuk/go-chart/drawing"
 )
 
-func newPlot(data fugle.Data) []byte {
+func NewPlot(data fugle.Data, font *truetype.Font) []byte {
 	xv := xvalues(data.Chart)
 	yv, largest, smallest := yvalues(data.Chart, xv)
 
@@ -97,7 +98,7 @@ func newPlot(data fugle.Data) []byte {
 		Width:        4096,
 		Height:       2800,
 		DPI:          400,
-		Font:         DefaultFont,
+		Font:         font,
 		ColorPalette: darkColorPalette,
 		XAxis: chart.XAxis{
 			TickPosition: chart.TickPositionBetweenTicks,
