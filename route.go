@@ -31,7 +31,7 @@ func Route(command string, args []string, c chan interface{}) {
 	if len(args) > 0 {
 		cmdType = args[0]
 	}
-	if param1 != "" {
+	if len(args) > 1 {
 		param1 = args[1]
 	}
 
