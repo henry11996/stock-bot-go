@@ -60,16 +60,16 @@ func Route(command string, args []string, c chan interface{}) {
 			lp, _ := getMonthTotalLegalPerson(t)
 			c <- lp.PrettyString()
 		case "p":
-			meta, _ := fugle.Meta("TWSE_SEM_INDEX_1", false)
-			chart, _ := fugle.Chart("TWSE_SEM_INDEX_1", false)
+			meta, _ := fugle.Meta("IX0001", false)
+			chart, _ := fugle.Chart("IX0001", false)
 			chart.Data.Meta = meta.Data.Meta
 			chart.Data.Meta.NameZhTw = "加權指數"
 			chart.Data.Info.SymbolID = "TWSE"
 			png := plot.NewPlot(chart.Data, DefaultFont)
 			c <- png
 		default:
-			meta, _ := fugle.Meta("TWSE_SEM_INDEX_1", false)
-			quote, _ := fugle.Quote("TWSE_SEM_INDEX_1", false)
+			meta, _ := fugle.Meta("IX0001", false)
+			quote, _ := fugle.Quote("IX0001", false)
 			meta.Data.Meta.NameZhTw = "加權指數"
 			meta.Data.Info.SymbolID = "TWSE"
 			meta.Data.Quote = quote.Data.Quote
