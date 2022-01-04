@@ -72,29 +72,28 @@ func convertQuote(data fugle.Data) string {
 		currentPirce = data.Quote.Trade.Price
 	}
 
-	percent := currentPirce.Sub(data.Meta.PriceReference).Div(data.Meta.PriceReference).Mul(decimal.NewFromInt(100)).BigFloat()
-	minus := currentPirce.Sub(data.Meta.PriceReference).BigFloat()
 	fivePricesText, totalUnitText := "", ""
 	totalAskUnit, totalBidUnit := 0, 0
+	fmt.Print(data.Quote.Order)
 	for i := 0; i < 5; i++ {
 		askPrice, askUnit, bidPrice, bidUnit := "", "", "", ""
-		if len(data.Quote.Order.Bestasks) > i {
-			bestasks := data.Quote.Order.Bestasks[i]
+		if len(data.Quote.Order.Asks) > i {
+			bestasks := data.Quote.Order.Asks[i]
 			askPrice = bestasks.Price.StringFixed(2)
-			totalAskUnit += bestasks.Unit
+			totalAskUnit += bestasks.Volume
 			if askPrice == "0.00" {
 				askPrice = "市價"
 			}
-			askUnit = strconv.Itoa(bestasks.Unit)
+			askUnit = strconv.Itoa(bestasks.Volume)
 		}
-		if len(data.Quote.Order.Bestbids) > i {
-			bestbids := data.Quote.Order.Bestbids[i]
+		if len(data.Quote.Order.Bids) > i {
+			bestbids := data.Quote.Order.Bids[i]
 			bidPrice = bestbids.Price.StringFixed(2)
-			totalBidUnit += bestbids.Unit
+			totalBidUnit += bestbids.Volume
 			if bidPrice == "0.00" {
 				bidPrice = "市價"
 			}
-			bidUnit = strconv.Itoa(bestbids.Unit)
+			bidUnit = strconv.Itoa(bestbids.Volume)
 		}
 		fivePricesText += fmt.Sprintf("%-5s %6s \\| %6s %5s\n", bidUnit, bidPrice, askPrice, askUnit)
 	}
@@ -104,14 +103,14 @@ func convertQuote(data fugle.Data) string {
 		"高 %4v\\ |低 %4v\\ |總 %5v\n"+
 		"\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\n"+
 		"            %v         \n"+
-		" 買      %2.2f %2.2f%%     賣\n"+
+		" 買      %v %2.2f%%     賣\n"+
 		"\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\n"+
 		"%s"+
 		"\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\n"+
 		"%s"+
 		"```", data.Meta.NameZhTw, data.Info.SymbolID, status,
-		data.Quote.PriceHigh.Price, data.Quote.PriceLow.Price, data.Quote.Total.Unit,
-		currentPirce.BigFloat(), minus, percent,
+		data.Quote.PriceHigh.Price, data.Quote.PriceLow.Price, data.Quote.Total.TradeVolume,
+		currentPirce.BigFloat(), data.Quote.Change.StringFixed(2), data.Quote.ChangePercent,
 		fivePricesText, totalUnitText,
 	)
 }
