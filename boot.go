@@ -14,7 +14,7 @@ var Bot *tgbotapi.BotAPI
 
 func Boot() (*tgbotapi.BotAPI, tgbotapi.UpdatesChannel) {
 	var err error
-	Bot, err = tgbotapi.NewBotAPI(os.Getenv("TELEGRAM_APITOKEN"))
+	Bot, err = tgbotapi.NewBotAPI(os.Getenv("TELEGRAM_API_TOKEN"))
 	if err != nil {
 		log.Panic(err)
 	}
@@ -27,7 +27,7 @@ func Boot() (*tgbotapi.BotAPI, tgbotapi.UpdatesChannel) {
 func botInit(bot *tgbotapi.BotAPI) tgbotapi.UpdatesChannel {
 	var updates tgbotapi.UpdatesChannel
 	var err error
-	if os.Getenv("APP_ENV") == "debug" {
+	if os.Getenv("LISTEN_MODE") == "socket" {
 		_, _ = bot.SetWebhook(tgbotapi.NewWebhook(""))
 		u := tgbotapi.NewUpdate(0)
 		u.Timeout = 60
