@@ -64,17 +64,16 @@ func convertQuote(data fugle.Data) string {
 		status = ""
 	}
 
-	var currentPirce decimal.Decimal
+	var currentPrice decimal.Decimal
 	zero := decimal.NewFromInt(0)
 	if data.Quote.Trade.Price.Equal(zero) {
-		currentPirce = data.Quote.Trial.Price
+		currentPrice = data.Quote.Trial.Price
 	} else {
-		currentPirce = data.Quote.Trade.Price
+		currentPrice = data.Quote.Trade.Price
 	}
 
 	fivePricesText, totalUnitText := "", ""
 	totalAskUnit, totalBidUnit := 0, 0
-	fmt.Print(data.Quote.Order)
 	for i := 0; i < 5; i++ {
 		askPrice, askUnit, bidPrice, bidUnit := "", "", "", ""
 		if len(data.Quote.Order.Asks) > i {
@@ -99,18 +98,34 @@ func convertQuote(data fugle.Data) string {
 	}
 	totalUnitText += fmt.Sprintf("%-12v   %12v\n", totalBidUnit, totalAskUnit)
 
-	return fmt.Sprintf("``` %9s(%s)  %s \n"+
-		"高 %4v\\ |低 %4v\\ |總 %5v\n"+
-		"\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\n"+
-		"            %v         \n"+
-		" 買      %v %2.2f%%     賣\n"+
-		"\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\n"+
-		"%s"+
-		"\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\n"+
-		"%s"+
-		"```", data.Meta.NameZhTw, data.Info.SymbolID, status,
-		data.Quote.PriceHigh.Price, data.Quote.PriceLow.Price, data.Quote.Total.TradeVolume,
-		currentPirce.BigFloat(), data.Quote.Change.StringFixed(2), data.Quote.ChangePercent,
-		fivePricesText, totalUnitText,
-	)
+	if data.Meta.NameZhTw == "" {
+		return "找不到此股票"
+	} else if totalBidUnit == 0 && totalAskUnit == 0 {
+		return fmt.Sprintf("``` %9s(%s)  %s \n"+
+			"高 %4v\\ |低 %4v\\ |總 %5v\n"+
+			"\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\n"+
+			"            %v         \n"+
+			"        %v %2.2f%%      \n"+
+			"\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\n"+
+			"```", data.Meta.NameZhTw, data.Info.SymbolID, status,
+			data.Quote.PriceHigh.Price, data.Quote.PriceLow.Price, data.Quote.Total.TradeVolume,
+			currentPrice.BigFloat(), data.Quote.Change.StringFixed(2), data.Quote.ChangePercent,
+		)
+	} else {
+		return fmt.Sprintf("``` %9s(%s)  %s \n"+
+			"高 %4v\\ |低 %4v\\ |總 %5v\n"+
+			"\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\n"+
+			"            %v         \n"+
+			" 買      %v %2.2f%%     賣\n"+
+			"\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\n"+
+			"%s"+
+			"\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\n"+
+			"%s"+
+			"```", data.Meta.NameZhTw, data.Info.SymbolID, status,
+			data.Quote.PriceHigh.Price, data.Quote.PriceLow.Price, data.Quote.Total.TradeVolume,
+			currentPrice.BigFloat(), data.Quote.Change.StringFixed(2), data.Quote.ChangePercent,
+			fivePricesText, totalUnitText,
+		)
+	}
+
 }

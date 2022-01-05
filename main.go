@@ -15,9 +15,8 @@ var DefaultFont = readFont()
 
 func main() {
 	InitEnv()
-	bot, updates := Boot()
 	InitCache()
-	InitSchedule()
+	bot, updates := Boot()
 	for update := range updates {
 		if update.Message == nil {
 			continue
