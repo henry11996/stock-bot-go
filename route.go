@@ -57,15 +57,6 @@ func Route(command string, args []string, c chan interface{}) {
 			}
 			lp, _ := getMonthTotalLegalPerson(t)
 			c <- lp.PrettyString()
-		case "p":
-			meta, _ := fugle.Meta("IX0001", false)
-			chart, _ := fugle.Chart("IX0001", false)
-			chart.Data.Meta = meta.Data.Meta
-			chart.Data.Meta.NameZhTw = "加權指數"
-			chart.Data.Info.SymbolID = "TWSE"
-			// png := plot.NewPlot(chart.Data, DefaultFont)
-			// c <- png
-			c <- "Current not available"
 		default:
 			meta, _ := fugle.Meta("IX0001", false)
 			quote, _ := fugle.Quote("IX0001", false)
@@ -99,13 +90,6 @@ func Route(command string, args []string, c chan interface{}) {
 			}
 			lp, _ := getMonthLegalPersons(t)
 			c <- lp.FindStock(stockId, command).PrettyString(lp.Title)
-		case "p":
-			meta, _ := fugle.Meta(stockId, false)
-			chart, _ := fugle.Chart(stockId, false)
-			chart.Data.Meta = meta.Data.Meta
-			// png := plot.NewPlot(chart.Data, DefaultFont)
-			// c <- png
-			c <- "Current not available"
 		default:
 			meta, _ := fugle.Meta(stockId, false)
 			quote, _ := fugle.Quote(stockId, false)

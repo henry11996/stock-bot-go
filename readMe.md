@@ -48,7 +48,3 @@ https://devcenter.heroku.com/articles/getting-started-with-go#deploy-the-app
 /2330 m 20210401
 /台積電 m 20210401
 ```
-
-# 開發中項目
-- 即時圖表 使用 plot 套件
-- 排成通知三大法人總買賣超金額
