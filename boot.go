@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/adshao/go-binance/v2"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/henry11996/fugle-golang/fugle"
 	"github.com/joho/godotenv"
@@ -53,7 +54,7 @@ func botInit(bot *tgbotapi.BotAPI) tgbotapi.UpdatesChannel {
 	return updates
 }
 
-func Initfugle() fugle.Client {
+func InitFugle() fugle.Client {
 	client, err := fugle.NewFugleClient(fugle.ClientOption{
 		ApiToken: os.Getenv("FUGLE_API_TOKEN"),
 		Version:  "v0.3",
@@ -62,6 +63,14 @@ func Initfugle() fugle.Client {
 		log.Fatal("failed to init fugle api client, " + err.Error())
 	}
 	return client
+}
+
+func InitBinance() *binance.Client {
+	var (
+		apiKey    = os.Getenv("BINANCE_API_KEY")
+		secretKey = os.Getenv("BINANCE_SECRET_KEY")
+	)
+	return binance.NewClient(apiKey, secretKey)
 }
 
 func InitEnv() error {

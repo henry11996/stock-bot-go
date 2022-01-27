@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"time"
 )
@@ -8,7 +9,9 @@ import (
 func Route(command string, args []string, c chan interface{}) {
 	var Now = time.Now().In(Loc)
 
-	fugle := Initfugle()
+	fugle := InitFugle()
+
+	binance := InitBinance()
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -35,6 +38,14 @@ func Route(command string, args []string, c chan interface{}) {
 
 	var err error
 	switch command {
+	case "e":
+		s := binance.NewAveragePriceService().Symbol(cmdType)
+		res, err := s.Do(context.Background())
+		if err != nil {
+			log.Panic(err)
+		}
+		log.Println(res)
+		c <- "```" + cmdType + "：" + res.Price + "```"
 	case "tw":
 		switch cmdType {
 		case "d":

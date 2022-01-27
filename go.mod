@@ -4,6 +4,7 @@ module github.com/telegram-go-stock-bot
 go 1.16
 
 require (
+	github.com/adshao/go-binance/v2 v2.3.4 // indirect
 	github.com/blend/go-sdk v1.20210730.3 // indirect
 	github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0

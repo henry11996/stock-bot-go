@@ -127,5 +127,4 @@ func convertQuote(data fugle.Data) string {
 			fivePricesText, totalUnitText,
 		)
 	}
-
 }
