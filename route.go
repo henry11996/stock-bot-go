@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -39,13 +40,16 @@ func Route(command string, args []string, c chan interface{}) {
 	var err error
 	switch command {
 	case "e":
-		s := binance.NewAveragePriceService().Symbol(cmdType)
-		res, err := s.Do(context.Background())
-		if err != nil {
-			log.Panic(err)
+		if param1 == "" {
+			param1 = "USDT"
 		}
-		log.Println(res)
-		c <- "```" + cmdType + "：" + res.Price + "```"
+		symbolID := strings.ToUpper(cmdType + param1)
+		res, err := binance.NewListPriceChangeStatsService().Symbol(symbolID).Do(context.Background())
+		if err != nil {
+			log.Println(err)
+			panic("無法取得```" + command + "```")
+		}
+		c <- convert24TickerPrice(res[0])
 	case "tw":
 		switch cmdType {
 		case "d":
@@ -56,7 +60,11 @@ func Route(command string, args []string, c chan interface{}) {
 					log.Panic("錯誤日期格式yyyy/mm/dd")
 				}
 			}
-			lp, _ := getDayTotalLegalPerson(t)
+			lp, err := getDayTotalLegalPerson(t)
+			if err != nil {
+				log.Println(err)
+				panic("無法取得```" + command + "```")
+			}
 			c <- lp.PrettyString()
 		case "m":
 			t := Now
@@ -66,7 +74,11 @@ func Route(command string, args []string, c chan interface{}) {
 					log.Panic("錯誤日期格式yyyy/mm")
 				}
 			}
-			lp, _ := getMonthTotalLegalPerson(t)
+			lp, err := getMonthTotalLegalPerson(t)
+			if err != nil {
+				log.Println(err)
+				panic("無法取得```" + command + "```")
+			}
 			c <- lp.PrettyString()
 		default:
 			meta, _ := fugle.Meta("IX0001", false)

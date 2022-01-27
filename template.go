@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 
+	"github.com/adshao/go-binance/v2"
 	"github.com/henry11996/fugle-golang/fugle"
 	"github.com/shopspring/decimal"
 )
@@ -127,4 +129,28 @@ func convertQuote(data fugle.Data) string {
 			fivePricesText, totalUnitText,
 		)
 	}
+}
+
+func convert24TickerPrice(res *binance.PriceChangeStats) string {
+	priceChangePercent, error := strconv.ParseFloat(res.PriceChangePercent, 64)
+	if error != nil {
+		log.Panic(error.Error())
+	}
+	return fmt.Sprintf("``` %13s 24hr \n"+
+		"\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\n"+
+		"      %8s \n"+
+		"   %8s %4.2f%% \n"+
+		"\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\\-\n"+
+		"    高 %13s \n"+
+		"    低 %13s \n"+
+		"    總 %13s \n"+
+		"```",
+		res.Symbol,
+		res.LastPrice,
+		res.PriceChange,
+		priceChangePercent,
+		res.HighPrice,
+		res.LowPrice,
+		res.Volume,
+	)
 }
