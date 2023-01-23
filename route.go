@@ -23,7 +23,7 @@ func Route(command string, args []string, c chan interface{}) {
 			case error:
 				err = x.Error()
 			}
-			c <- "無法取得```" + command + "```，" + err
+			c <- "執行```" + command + "```錯誤，" + err
 		}
 	}()
 
@@ -40,15 +40,20 @@ func Route(command string, args []string, c chan interface{}) {
 	var err error
 	switch command {
 	case "e":
+		cmdType = strings.ToUpper(cmdType)
 		if param1 == "" {
 			param1 = "USDT"
 		}
-		symbolID := strings.ToUpper(cmdType + param1)
-		res, err := binance.NewListPriceChangeStatsService().Symbol(symbolID).Do(context.Background())
+		param1 = strings.ToUpper(param1)
+		res, err := binance.NewListPriceChangeStatsService().Symbol(cmdType + param1).Do(context.Background())
 		if err != nil {
 			log.Println(err)
-			panic("無法取得```" + command + "```")
+			panic("無法取得```" + cmdType + "```")
 		}
+		res[0].Symbol = map[string]string{
+			"BTC": "₿",
+			"ETH": "⟠",
+		}[cmdType] + " " + res[0].Symbol
 		c <- convert24TickerPrice(res[0])
 	case "tw":
 		switch cmdType {

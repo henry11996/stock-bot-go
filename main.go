@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	tgBot "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/golang/freetype/truetype"
 )
 
@@ -16,7 +16,11 @@ var DefaultFont = readFont()
 func main() {
 	InitEnv()
 	InitCache()
-	bot, updates := Boot()
+	bot, updates := InitTelegramBot()
+	listenTelegramUpdateChannel(bot, updates)
+}
+
+func listenTelegramUpdateChannel(bot *tgBot.BotAPI, updates tgBot.UpdatesChannel) {
 	for update := range updates {
 		if update.Message == nil {
 			continue
@@ -38,7 +42,7 @@ func main() {
 		message := <-c
 		switch v := message.(type) {
 		case string:
-			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
+			msg := tgBot.NewMessage(update.Message.Chat.ID, "")
 			msg.Text = v
 			msg.ParseMode = "MarkdownV2"
 			_, err := bot.Send(msg)
@@ -46,7 +50,7 @@ func main() {
 				log.Print(err)
 			}
 		case []byte:
-			msg := tgbotapi.NewPhotoUpload(update.Message.Chat.ID, tgbotapi.FileBytes{
+			msg := tgBot.NewPhotoUpload(update.Message.Chat.ID, tgBot.FileBytes{
 				Bytes: v,
 			})
 			_, err := bot.Send(msg)
