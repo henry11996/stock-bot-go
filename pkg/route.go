@@ -1,4 +1,4 @@
-package main
+package pkg
 
 import (
 	"context"
@@ -7,7 +7,13 @@ import (
 	"time"
 )
 
-func Route(command string, args []string, c chan interface{}) {
+var (
+	Loc, _ = time.LoadLocation("Asia/Taipei")
+)
+
+type RouteFunc func(command string, args []string, c chan string)
+
+func Route(command string, args []string, c chan string) {
 	var Now = time.Now().In(Loc)
 
 	fugle := InitFugle()

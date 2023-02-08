@@ -1,4 +1,4 @@
-package main
+package pkg
 
 import (
 	"encoding/json"
@@ -10,6 +10,10 @@ import (
 
 	"github.com/patrickmn/go-cache"
 	"github.com/telegram-go-stock-bot/twse"
+)
+
+var (
+	Cache = InitCache()
 )
 
 type QueryResponse struct {
