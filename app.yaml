@@ -1,4 +1,4 @@
-runtime: go116  # or another supported version
+runtime: go119  # or another supported version
 
 instance_class: F1
 

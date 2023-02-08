@@ -2,9 +2,9 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/telegram-go-stock-bot/pkg"
-	"github.com/telegram-go-stock-bot/pkg/messages/discord"
-	"github.com/telegram-go-stock-bot/pkg/messages/telegram"
+	"github.com/stock-bot-go/pkg"
+	"github.com/stock-bot-go/pkg/messages/discord"
+	"github.com/stock-bot-go/pkg/messages/telegram"
 )
 
 func main() {

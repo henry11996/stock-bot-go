@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/patrickmn/go-cache"
-	"github.com/telegram-go-stock-bot/twse"
+	"github.com/stock-bot-go/twse"
 )
 
 var (

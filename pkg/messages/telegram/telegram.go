@@ -9,7 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	tgBot "github.com/go-telegram-bot-api/telegram-bot-api"
-	"github.com/telegram-go-stock-bot/pkg"
+	"github.com/stock-bot-go/pkg"
 )
 
 var Bot *tgBot.BotAPI

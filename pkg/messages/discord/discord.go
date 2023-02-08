@@ -10,7 +10,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/gin-gonic/gin"
-	"github.com/telegram-go-stock-bot/pkg"
+	"github.com/stock-bot-go/pkg"
 )
 
 var (
