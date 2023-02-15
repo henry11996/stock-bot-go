@@ -5,6 +5,8 @@ import (
 	"log"
 	"strings"
 	"time"
+
+	myBinance "github.com/stock-bot-go/pkg/service/binance"
 )
 
 var (
@@ -18,7 +20,7 @@ func Route(command string, args []string, c chan string) {
 
 	fugle := InitFugle()
 
-	binance := InitBinance()
+	binance := myBinance.GetInstance()
 
 	defer func() {
 		if r := recover(); r != nil {

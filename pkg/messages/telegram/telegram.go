@@ -41,13 +41,14 @@ func Listener(c *gin.Context) {
 	var update tgBot.Update
 	json.Unmarshal(bytes, &update)
 
-	if update.Message == nil {
+	if update.Message == nil || update.Message.Text == "" {
 		return
 	}
-	log.Printf("[%s(%v)] %s", update.Message.From.UserName, update.Message.Chat.ID, update.Message.Text)
+	incomingMessage := update.Message.Text
+	log.Printf("[%s(%v)] %s", update.Message.From.UserName, update.Message.Chat.ID, incomingMessage)
 
-	command := strings.Split(update.Message.Text, " ")[0][1:]
-	args := strings.Split(update.Message.Text, " ")
+	command := strings.Split(incomingMessage, " ")[0][1:]
+	args := strings.Split(incomingMessage, " ")
 	if len(args) > 1 {
 		args = args[1:]
 	} else {

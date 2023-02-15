@@ -9,11 +9,12 @@ import (
 	"time"
 
 	"github.com/patrickmn/go-cache"
+	myCache "github.com/stock-bot-go/pkg/storage/cache"
 	"github.com/stock-bot-go/pkg/twse"
 )
 
 var (
-	Cache = InitCache()
+	Cache = myCache.GetInstance()
 )
 
 type QueryResponse struct {
