@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/patrickmn/go-cache"
-	"github.com/stock-bot-go/twse"
+	"github.com/stock-bot-go/pkg/twse"
 )
 
 var (

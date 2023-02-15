@@ -7,3 +7,11 @@ automatic_scaling:
 
 env_variables:
   TELEGRAM_WEBHOOK_URL: "smart-invest-337212.de.r.appspot.com"
+
+inbound_services:
+  - warmup
+
+handlers:
+- url: /_ah/warmup
+  script: main.go
+  login: admin

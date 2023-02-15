@@ -12,6 +12,11 @@ func main() {
 	telegram.Init()
 	discord.Init()
 	r := gin.Default()
+	r.POST("/_ah/warmup", func(ctx *gin.Context) {
+		ctx.JSON(200, gin.H{
+			"ok": true,
+		})
+	})
 	r.POST("/tg", telegram.Listener)
 	r.POST("/dc/interactions", discord.Middleware, discord.Listener)
 	r.Run()

@@ -34,8 +34,8 @@ func Init() *discordgo.Session {
 	fmt.Println(token, appId, publicKey)
 	check(err)
 
-	err = removeAllCommands(discord, appId)
-	check(err)
+	// err = removeAllCommands(discord, appId)
+	// check(err)
 
 	err = registerCommand(discord, appId)
 	check(err)
